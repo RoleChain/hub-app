@@ -36,8 +36,7 @@ export default function Nav() {
           <Image
             src={Logo}
             alt="Site Logo"
-            width="53"
-            height="42"
+            
           />
         </Link>
         {/* separator #1 */}

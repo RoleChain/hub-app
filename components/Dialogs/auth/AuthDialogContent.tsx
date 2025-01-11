@@ -11,7 +11,7 @@ const AuthDialogContent = () => {
 
   return (
     <div className="flex w-full flex-col gap-2 px-8">
-      <div className="flex flex-col items-center rounded-[2px] border px-2.5 py-2.5 text-xs uppercase">
+      {/* <div className="flex flex-col items-center rounded-[2px] border px-2.5 py-2.5 text-xs uppercase">
         <label className="w-full bg-white text-start font-semibold">
           enter referral code (optional)
           <input
@@ -22,7 +22,7 @@ const AuthDialogContent = () => {
             disabled={isConnecting}
           />
         </label>
-      </div>
+      </div> */}
       <button
         className="flex items-center justify-between gap-4 rounded-[2px] border bg-white px-2.5 py-2.5 text-xs font-semibold uppercase"
         onClick={() => signIn()}
