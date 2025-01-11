@@ -1,0 +1,268 @@
+"use client";
+import EmptyChat from "@/components/chat/EmptyChat";
+import { AuthDialog } from "@/components/Dialogs";
+import { toast } from "@/hooks/use-toast";
+import useAuth from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import {
+  ArrowDownIcon,
+  Disc3Icon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+// import { chatApi } from "@/api";
+import axios from "axios";
+import Markdown from "markdown-to-jsx";
+import CopyAction from "@/components/chat/MessageActions/Copy";
+import { v4 } from "uuid";
+
+type Message = {
+  messageId: string;
+  // chatId: string;
+  // createdAt: Date;
+  content: string;
+  role: "user" | "assistant";
+  sources?: unknown[];
+};
+
+const Page = () => {
+  const { user } = useAuth();
+  const [query, setQuery] = useState("");
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowScrollToBottom, setIsShowScrollToBottom] = useState(false);
+
+  const queryInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleQuery = async (query: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        messageId: v4(),
+        content: query,
+        role: "user",
+      },
+    ]);
+    setIsLoading(true);
+    try {
+      const { data } = await axios.post<{
+        answer: string;
+        sources?: [
+          {
+            [key: string]: string;
+          },
+        ];
+      }>(
+        "http://localhost:3001/chat/search",
+        {
+          query,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          messageId: v4(),
+          role: "assistant",
+          content: data.answer as string,
+          sources: data.sources,
+        },
+      ]);
+      console.log(data);
+    } catch (err) {
+      toast({
+        title: "Something went wrong",
+        variant: "destructive",
+      });
+      // remove last query
+      setMessages((prev) => {
+        if (prev.length > 1 && prev[prev.length - 1].role === "user")
+          prev.pop();
+        return prev;
+      });
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+      queryInputRef.current?.focus();
+      setQuery("");
+    }
+  };
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleScroll = () => {
+    const { scrollY, innerHeight } = window;
+    if (!containerRef.current) {
+      return;
+    }
+    const { scrollHeight } = containerRef.current;
+    if (scrollHeight > scrollY + Math.max(600, innerHeight) * 2) {
+      setIsShowScrollToBottom(true);
+    } else {
+      setIsShowScrollToBottom(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    // console.log(queryInputRef.current);
+    queryInputRef.current?.focus();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return (
+    <section className="relative flex flex-col gap-4 px-4 md:px-6">
+      <div className="relative flex h-full w-full flex-col rounded-md bg-white pb-12 pl-4 md:pl-16 pt-6">
+        {messages.length ? (
+          <div className="w-full max-w-full md:max-w-[80%]">
+            {messages.map((message, idx) => {
+              const isLast = idx === messages.length - 1;
+              return (
+                <div key={message.messageId}>
+                  {message.role === "user" ? (
+                    <>
+                      <div
+                        className={cn(
+                          "w-full max-w-[80%]",
+                          idx > 0 ? "mt-8" : null,
+                        )}
+                      >
+                        <span className="block text-2xl font-semibold text-black">
+                          {message.content}
+                        </span>
+                        <div className="my-6 h-[1px] w-full bg-black/10" />
+                      </div>
+                      {isLoading && isLast && (
+                        <div className="flex min-h-10 pe-12">
+                          <Disc3Icon className="animate-spin" />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="max flex flex-col gap-4">
+                      <Markdown
+                        className={cn(
+                          "prose max-w-[80%] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0",
+                          "break-words text-sm font-medium text-black dark:text-white md:text-base",
+                        )}
+                      >
+                        {message.content}
+                      </Markdown>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 lg:mr-24">
+                        <CopyAction report={message.content} />
+                        <div className="flex gap-2">
+                          <button className="text-sm">
+                            <ThumbsUpIcon width={18} height={18} />
+                          </button>
+                          <button className="text-sm">
+                            <ThumbsDownIcon width={18} height={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    ref={messagesEndRef}
+                    className="h-[0px]"
+                  />
+                </div>
+              );
+            })}
+
+            <button
+              className={cn(
+                "sticky inset-0 bottom-24 left-0 right-0 mx-auto mt-auto w-fit rounded-full bg-black p-1 text-white shadow shadow-black duration-500",
+                isShowScrollToBottom
+                  ? "pointer-events-auto translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-full opacity-0",
+              )}
+              onClick={scrollToBottom}
+            >
+              <ArrowDownIcon />
+            </button>
+          </div>
+        ) : (
+          <EmptyChat
+            handleQuery={(query: string) => {
+              handleQuery(query);
+            }}
+          />
+        )}
+        {/* Footer */}
+        {user ? (
+          <div className="sticky bottom-0 mt-auto flex gap-4 py-5">
+            <div className="relative flex h-full w-full flex-col rounded-[12px] border border-[#ECECEC] bg-white outline-accent focus-within:outline">
+              <input
+                ref={queryInputRef}
+                autoFocus
+                type="text"
+                placeholder={"Start your research"}
+                className="h-full w-full border-none bg-transparent py-2 pe-16 ps-4 focus-within:outline-none disabled:cursor-no-drop"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDownCapture={(e) => {
+                  if (e.key === "Enter") handleQuery(query);
+                }}
+                disabled={isLoading}
+              />
+            </div>
+            <button
+              className="flex h-fit items-center gap-4 self-end rounded-[12px] bg-accent p-4 hover:bg-[#93B019] disabled:animate-pulse disabled:cursor-progress"
+              onClick={() => handleQuery(query)}
+              disabled={isLoading}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M20.5107 13.5846L6.31372 20.4806C6.04657 20.6126 5.74426 20.6561 5.45074 20.6045C5.15722 20.553 4.88778 20.4092 4.68159 20.194C4.47297 19.9815 4.338 19.7077 4.29651 19.4128C4.25502 19.1179 4.3092 18.8175 4.45109 18.5556L7.3417 13.0749H13.5769C13.8832 13.0749 14.1314 12.8266 14.1314 12.5204C14.1314 12.2142 13.8832 11.9659 13.5769 11.9659H7.56577L4.44476 6.0655C4.30233 5.80446 4.24841 5.50426 4.29109 5.20998C4.33377 4.91569 4.47075 4.64319 4.68146 4.43337L4.70015 4.41468C4.90641 4.20548 5.17357 4.06691 5.46338 4.0188C5.75319 3.97068 6.0508 4.0155 6.31359 4.14683L20.5107 11.043C20.7502 11.1579 20.9523 11.3382 21.0938 11.5631C21.2353 11.7879 21.3104 12.0482 21.3104 12.3138C21.3104 12.5795 21.2353 12.8397 21.0939 13.0646C20.9524 13.2894 20.7502 13.4697 20.5107 13.5846Z"
+                  fill="white"
+                />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <div
+            className={"absolute bottom-0 left-0 right-0 isolate bg-white py-5"}
+          >
+            <div className="absolute inset-0 -mx-12 h-[1px] w-screen bg-[#dcdcdc]" />
+            <div className="mx-auto w-fit">
+              <button
+                className="w-full rounded-[12px] bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
+                onClick={() => setIsAuthDialogOpen(true)}
+              >
+                Sign up to contribute and earn rewards
+              </button>
+              <AuthDialog
+                isOpen={isAuthDialogOpen}
+                toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default Page;

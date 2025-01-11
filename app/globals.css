@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  /* :root { */
+  /*   --background: 0, 0%, 98%; */
+  /*   --card: 225, 29%, 97%; */
+  /*   --card-foreground: 220, 43%, 11%; */
+  /*   --popover: 225, 29%, 97%; */
+  /*   --popover-foreground: 220, 43%, 11%; */
+  /*   --primary: 0, 0%, 13%; */
+  /*   --primary-foreground: 0, 0%, 100%; */
+  /*   --secondary: 210 40% 96.1%; */
+  /*   --secondary-foreground: 216, 18%, 34%; */
+  /*   --muted: 210, 20%, 98%; */
+  /*   --muted-foreground: 221, 13%, 46%; */
+  /*   --accent: 72 75% 46%; */
+  /*   --accent-foreground: 0 0% 100%; */
+  /*   --destructive: 0 84.2% 60.2%; */
+  /*   --destructive-foreground: 0, 0%, 100%; */
+  /*   --border: 214.3 31.8% 91.4%; */
+  /*   --input: 214.3 31.8% 91.4%; */
+  /*   --ring: 220, 43%, 11%; */
+  /*   --chart-1: 12 76% 61%; */
+  /*   --chart-2: 173 58% 39%; */
+  /*   --chart-3: 197 37% 24%; */
+  /*   --chart-4: 43 74% 66%; */
+  /*   --chart-5: 27 87% 67%; */
+  /*   --radius: 0.5rem; */
+  /* } */
+  :root {
+    --background: 0, 0%, 100%;
+    --bg-weak: 0, 0%, 98%;
+    --bg-soft: 0, 0%, 99%;
+    --bg-sub: 0, 0%, 96%;
+    /* --accent: 72, 75%, 46%; */
+    --foreground: 220, 43%, 11%;
+    --foreground-primary: 220, 43%, 11%;
+    --foreground-secondary: 225, 29%, 97%;
+    --foreground-tertiary: 220, 43%, 11%;
+    --primary-btn-bg: 225, 29%, 97%;
+    --primary-btn-fg: 220, 43%, 11%;
+    --primary-btn-hovered: 0, 0%, 13%;
+    --primary-foreground: 0, 0%, 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 216, 18%, 34%;
+    --muted: 210, 20%, 98%;
+    --muted-foreground: 221, 13%, 46%;
+    --accent: 72 75% 46%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0, 0%, 100%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 220, 43%, 11%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0, 0%, 98%;
+    --foreground: 0, 0%, 100%;
+    --card: 220, 43%, 11%;
+    --card-foreground: 0, 0%, 100%;
+    --popover: 220, 43%, 11%;
+    --popover-foreground: 0, 0%, 100%;
+    --primary: 0, 0%, 100%;
+    --primary-foreground: 0, 0%, 13%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 0, 0%, 100%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 0, 0%, 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0, 0%, 100%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-[#444];
+  }
+}
+
+/* .mission { */
+/*   background: linear-gradient(103deg, #ff2, #f2f); */
+/* } */
+
+.mission-0 {
+  background: linear-gradient(103deg, #c1d27d, #d5e1a6);
+}
+.mission-1 {
+  background: linear-gradient(103deg, #86b2ff, #bbd5ff);
+}
+.mission-2 {
+  background: linear-gradient(103deg, #ffcb86, rgba(255, _203, _134, _0.40));
+}
+.mission-3 {
+  background: linear-gradient(103deg, #d586ff, #e6b7ff);
+}
+.mission-4 {
+  background: linear-gradient(103deg, #ff8686, rgba(255, _134, _134, _0.40));
+}
+.mission-5 {
+  background: linear-gradient(103deg, #86d9ff, rgba(134, _217, _255, _0.40));
+}
+
+@keyframes pop {
+  0%,
+  100% {
+    scale: 1;
+  }
+  75% {
+    scale: 1.2;
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-accent,
+.scrollbar-thumb-accent::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 6px;
+  scrollbar-highlight-color: green;
+}
+
+.scrollbar-track-accent-fg,
+.scrollbar-track-accent-fg::-webkit-scrollbar-track {
+  background-color: var(--accent-foreground);
+  scrollbar-track-color: var(--accent-foreground);
+}
+
+.scrollbar-thin:-webkit-scrollbar {
+  width: 6px;
+}
+
+.no-scrollbar {
+  scrollbar-color: green;
+}
+
+@layer utilities {
+  .mobile-container {
+    @apply px-4 md:px-6 lg:px-8;
+  }
+  
+  .mobile-menu-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scroll {
+    @apply overflow-hidden;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
