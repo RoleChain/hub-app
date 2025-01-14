@@ -3,7 +3,7 @@ import PapersIcon from "@/components/icons/papers";
 import MissionCard from "@/components/Missions/MissionCard";
 import { EyeIcon, PlusIcon, BarChart, Users, Bot, Trash2, MessageSquare, Settings, Plus, PlayIcon, Square, ActivityIcon, Terminal } from "lucide-react";
 import { useEffect, useState } from "react";
-import { VerifyPaperDialog } from "@/components/Dialogs";
+import { VerifyPaperDialog, AuthDialog } from "@/components/Dialogs";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { Mission } from "@/types";
@@ -34,6 +34,8 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
 
 // const MissionCardColors = [
 //   { from: "#C1D27D", to: "#D5E1A6" },
@@ -450,6 +452,15 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState("overview");
   const [logs, setLogs] = useState<any[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState("all");
+  const router = useRouter();
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      setIsAuthDialogOpen(true);
+    }
+  }, [user]);
 
   const handleConfigureAgent = (agentId: string) => {
     // Add your configuration logic here
@@ -535,7 +546,7 @@ export default function Page() {
         <div className="flex gap-3">
           <button
             className="flex items-center gap-2 rounded-[8px] border border-accent bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
-            onClick={() => setIsCreateAgent(true)}
+            onClick={() => router.push("/agents/new")}
           >
             <Plus width={12} height={12} />
             <span className="block text-nowrap text-sm">
@@ -768,6 +779,11 @@ export default function Page() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <AuthDialog
+        isOpen={isAuthDialogOpen}
+        toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
+      />
     </section>
   );
 }

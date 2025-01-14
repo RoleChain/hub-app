@@ -197,3 +197,11 @@ body {
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
 }
+
+.no-highlight {
+  outline: none;
+}
+
+input {
+  outline: none;
+}

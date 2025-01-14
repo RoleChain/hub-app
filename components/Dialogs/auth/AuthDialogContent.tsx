@@ -62,7 +62,7 @@ const AuthDialogContent = () => {
           height={24}
         />
       </button>
-      <button
+      {/* <button
         className="flex items-center justify-between gap-4 rounded-[2px] border bg-white px-2.5 py-2.5 text-xs font-semibold uppercase"
         onClick={() => signIn()}
         disabled={isConnecting}
@@ -77,6 +77,7 @@ const AuthDialogContent = () => {
         />
       </button>
       <button onClick={handleSignup}>Sign Up</button>
+      </button> */}
     </div>
   );
 };

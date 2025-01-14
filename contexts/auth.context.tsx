@@ -62,7 +62,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     setIsConnecting(true);
     router.push(
       //   // "https://research-ai-backend-production.up.railway.app/auth/google",
-      "http://localhost:8000/auth/login/google",
+      "http://localhost:3002/auth/google",
     );
     setIsConnecting(false);
   };
@@ -82,38 +82,56 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const checkLocalUser = useCallback(() => {
-    const localToken: string | null = getAccessToken();
+    const localToken: string | null = localStorage.getItem("token");
     if (!localToken) {
-      return null;
+      return;
     }
-    const localUser = decodedUser(localToken);
-    return localUser;
+    // Fetch latest user data using the stored token
+    fetch("http://localhost:3002/auth/me", {
+      headers: {
+        Authorization: `Bearer ${localToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+        clearLocalToken();
+        setUser(null);
+      });
   }, []);
 
   useEffect(() => {
-    // jwt payload structure
-    //   {
-    //   "id": number,
-    //   "email": string,
-    //   "name": string,
-    //   "iat": timestamp,
-    //   "exp": timestamp,
-    // }
     if (token) {
-      const user = decodedUser(token);
       setLocalToken("token", token);
-      setUser(user);
-      toast({
-        title: "Successfully logged in",
-        // @ts-expect-error jwt
-        desc: `Welcome ${user.name}`,
-      });
-      router.replace("/");
+      
+      fetch("http://localhost:3002/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setUser(data);
+          toast({
+            title: "Successfully logged in",
+          });
+          router.replace("/");
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          toast({
+            title: "Error fetching user data",
+            variant: "destructive",
+          });
+        });
     }
   }, [token]);
 
   useEffect(() => {
-    setUser(checkLocalUser());
+    checkLocalUser();
   }, []);
 
   return (
