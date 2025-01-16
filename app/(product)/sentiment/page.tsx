@@ -30,24 +30,28 @@ import {
   TableCell,
 } from "@/components/ui/table"
 import { Bell, AlertTriangle, CheckCircle, Users } from 'lucide-react'
+import { useState } from 'react'
+import { TelegramDialog } from '@/components/Dialogs/TelegramDialog'
 
 interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
   data: any
 }
 
 const CHART_COLORS = {
-  primary: '#3B82F6',    // Lighter blue
-  secondary: '#94A3B8',  // Soft slate
-  danger: '#EF4444',     // Soft red
-  success: '#10B981',    // Soft green
-  background: '#F8FAFC', // Very light blue-gray
-  text: '#334155',       // Slate-700
-  muted: '#CBD5E1',      // Slate-300
+  primary: '#E855E0',        // Bright pink
+  secondary: '#4F6FFF',      // Bright blue
+  danger: '#FF4444',         // Red
+  success: '#22C55E',        // Green
+  background: '#FFFFFF',     // White
+  text: '#1A1D1F',          // Dark text
+  muted: '#6F767E',         // Muted text
   // Gradients
   primaryGradient: {
-    start: 'rgba(59, 130, 246, 0.08)', // Very light blue
-    end: 'rgba(59, 130, 246, 0)'
-  }
+    start: '#E855E0',        // Pink
+    end: '#4F6FFF'          // Blue
+  },
+  cardBg: '#F4F5F6',        // Light gray background
+  hover: '#F9FAFB'          // Hover state
 }
 
 export function AreaChart({ data, className, ...props }: ChartProps) {
@@ -85,10 +89,20 @@ export function AreaChart({ data, className, ...props }: ChartProps) {
           <Area
             type="monotone"
             dataKey="totalMessages"
-            stroke={CHART_COLORS.primary}
-            fill="url(#colorMessages)"
-            strokeWidth={1.5}
+            stroke="url(#gradient)"
+            fill="url(#areaGradient)"
+            strokeWidth={2}
           />
+          <defs>
+            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#E855E0" />
+              <stop offset="100%" stopColor="#4F6FFF" />
+            </linearGradient>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(232,85,224,0.1)" />
+              <stop offset="100%" stopColor="rgba(79,111,255,0.02)" />
+            </linearGradient>
+          </defs>
         </RechartsAreaChart>
       </ResponsiveContainer>
     </div>
@@ -159,19 +173,19 @@ function DataTable({ columns, data }: DataTableProps) {
           {data.map((row, rowIndex) => (
             <TableRow 
               key={rowIndex} 
-              className="hover:bg-muted/50 transition-colors"
+              className="bg-white hover:bg-[#F9FAFB] transition-colors"
             >
               {columns.map((column) => (
                 <TableCell 
                   key={`${rowIndex}-${column.accessorKey}`}
-                  className="font-medium"
+                  className="font-medium text-[#1A1D1F]"
                 >
                   {column.accessorKey === 'status' ? (
                     <span className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium",
+                      "px-3 py-1 rounded-full text-xs font-medium",
                       row[column.accessorKey] === 'Active' 
-                        ? "bg-blue-50 text-blue-600" 
-                        : "bg-slate-50 text-slate-600"
+                        ? "bg-[#E855E0]/10 text-[#E855E0]" 
+                        : "bg-[#F4F5F6] text-[#6F767E]"
                     )}>
                       {row[column.accessorKey]}
                     </span>
@@ -226,11 +240,11 @@ function NotificationCard({ title, message, type }: {
   }
 
   return (
-    <div className="flex items-start space-x-4 p-4 rounded-lg bg-white border border-slate-200">
+    <div className="flex items-start space-x-4 p-4 rounded-xl bg-white shadow-[0_1px_3px_rgba(16,24,40,0.1),0_1px_2px_rgba(16,24,40,0.06)]">
       {icons[type]}
       <div>
-        <h4 className="font-medium text-slate-900">{title}</h4>
-        <p className="text-sm text-slate-600">{message}</p>
+        <h4 className="font-semibold text-[#1A1D1F]">{title}</h4>
+        <p className="text-sm text-[#6F767E]">{message}</p>
       </div>
     </div>
   )
@@ -276,6 +290,8 @@ function LiveMessagesChart({ data }: ChartProps) {
 }
 
 export default function CommunityDashboard() {
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(true)
+  
   // Enhanced mock data
   const communityStats = [
     { 
@@ -376,24 +392,29 @@ export default function CommunityDashboard() {
   ]
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 space-y-8 bg-[#FAFBFC]">
+      <TelegramDialog
+        isOpen={isAuthDialogOpen}
+        toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
+      />
+      
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {communityStats.map((stat) => (
-          <Card key={stat.label} className="bg-white shadow-sm">
+          <Card key={stat.label} className="bg-white rounded-2xl border-0 shadow-[0_1px_3px_rgba(16,24,40,0.1),0_1px_2px_rgba(16,24,40,0.06)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">
+              <CardTitle className="text-sm font-medium text-[#6F767E]">
                 {stat.label}
               </CardTitle>
               <span className={cn(
                 "text-xs font-medium",
-                stat.trendUp ? "text-emerald-600" : "text-rose-500"
+                stat.trendUp ? "text-[#22C55E]" : "text-[#FF4444]"
               )}>
                 {stat.trend}
               </span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-semibold text-slate-900">
+              <div className="text-2xl font-bold text-[#1A1D1F]">
                 {stat.value}
               </div>
             </CardContent>

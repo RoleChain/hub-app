@@ -1,16 +1,16 @@
 "use client";
-import PapersIcon from "@/components/icons/papers";
-import MissionCard from "@/components/Missions/MissionCard";
-import { EyeIcon, PlusIcon, BarChart, Users, Bot, Trash2, MessageSquare, Settings, Plus, PlayIcon, Square, ActivityIcon, Terminal } from "lucide-react";
+// import PapersIcon from "@/components/icons/papers";
+// import MissionCard from "@/components/Missions/MissionCard";
+import { BarChart, Users, Bot, Trash2, MessageSquare, Settings, Plus, PlayIcon, Square, ActivityIcon, Terminal } from "lucide-react";
 import { useEffect, useState } from "react";
-import { VerifyPaperDialog, AuthDialog } from "@/components/Dialogs";
+import { AuthDialog } from "@/components/Dialogs";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { Mission } from "@/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
+// import { Mission } from "@/types";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/card";
+// import { Progress } from "@/components/ui/card";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -22,7 +22,7 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  // DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -47,9 +47,10 @@ import useAuth from "@/hooks/useAuth";
 // ];
 
 const CHART_COLORS = {
-  primary: '#3B82F6',    // Lighter blue
-  secondary: '#94A3B8',  // Soft slate
-  muted: '#CBD5E1',      // Slate-300
+  primary: '#EC4899',    // Pink-500
+  secondary: '#3B82F6',  // Blue-500
+  muted: '#64748b',      // Keep original slate for labels
+  background: '#ffffff'  // Keep white background
 }
 
 export function LineChart({ data }: { data: any }) {
@@ -72,7 +73,7 @@ export function LineChart({ data }: { data: any }) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#ffffff",
+              backgroundColor: CHART_COLORS.background,
               border: "1px solid #e5e7eb",
               borderRadius: "8px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
@@ -81,10 +82,16 @@ export function LineChart({ data }: { data: any }) {
           <Line 
             type="monotone" 
             dataKey="performance" 
-            stroke={CHART_COLORS.primary} 
+            stroke={`url(#colorGradient)`} // Using gradient
             strokeWidth={2}
             dot={false}
           />
+          <defs>
+            <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={CHART_COLORS.primary} />
+              <stop offset="100%" stopColor={CHART_COLORS.secondary} />
+            </linearGradient>
+          </defs>
         </RechartsLineChart>
       </ResponsiveContainer>
     </div>
@@ -107,9 +114,16 @@ interface AgentCardProps {
   actions: AgentAction[];
 }
 
+// Add a reusable gradient style with shadow
+const gradientStyle = {
+  button: "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white hover:opacity-90 shadow-lg shadow-purple-200",
+  card: "hover:shadow-lg hover:shadow-purple-100/50 transition-all duration-300",
+  iconContainer: "bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10"
+};
+
 export function AgentCard({ agent, actions }: AgentCardProps) {
   return (
-    <Card>
+    <Card className={gradientStyle.card}>
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold">{agent.name || 'Unnamed Agent'}</h3>
         <p className="text-sm text-muted-foreground">{agent.description}</p>
@@ -236,7 +250,7 @@ interface Agent {
 
 function TaskCard({ task }: { task: AgentTask }) {
   return (
-    <Card>
+    <Card className={gradientStyle.card}>
       <CardContent className="p-4">
         <div className="flex justify-between items-center">
           <h4 className="font-medium">{task.title}</h4>
@@ -369,18 +383,20 @@ const performanceData = [
 const GlobalStats = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     {[
-      { label: "Active Agents", value: "3", icon: <Bot className="h-4 w-4" /> },
-      { label: "Active Tasks", value: "5", icon: <ActivityIcon className="h-4 w-4" /> },
-      { label: "Credits Used", value: "1,234", icon: <BarChart className="h-4 w-4" /> },
-      { label: "System Health", value: "98%", icon: <ActivityIcon className="h-4 w-4" /> },
+      { label: "Active Agents", value: "3", icon: <Bot className="h-4 w-4 text-purple-500" /> },
+      { label: "Active Tasks", value: "5", icon: <ActivityIcon className="h-4 w-4 text-purple-500" /> },
+      { label: "Credits Used", value: "1,234", icon: <BarChart className="h-4 w-4 text-purple-500" /> },
+      { label: "System Health", value: "98%", icon: <ActivityIcon className="h-4 w-4 text-purple-500" /> },
     ].map((stat, i) => (
-      <Card key={i}>
+      <Card key={i} className={gradientStyle.card}>
         <CardContent className="flex items-center justify-between p-6">
           <div>
             <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
             <h3 className="text-2xl font-bold">{stat.value}</h3>
           </div>
-          <div className="rounded-full p-3 bg-muted">{stat.icon}</div>
+          <div className={`rounded-full p-3 ${gradientStyle.iconContainer}`}>
+            {stat.icon}
+          </div>
         </CardContent>
       </Card>
     ))}
@@ -545,7 +561,7 @@ export default function Page() {
 
         <div className="flex gap-3">
           <button
-            className="flex items-center gap-2 rounded-[8px] border border-accent bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
+            className={`flex items-center gap-2 rounded-[8px] px-4 py-2.5 font-semibold ${gradientStyle.button}`}
             onClick={() => router.push("/agents/new")}
           >
             <Plus width={12} height={12} />
@@ -576,9 +592,14 @@ export default function Page() {
                   <p className="text-sm font-medium">Total Users</p>
                   <p className="text-2xl font-bold">12.5k</p>
                 </div>
-                <Users className="h-8 w-8 text-muted-foreground" />
+                <Users className="h-8 w-8 text-pink-500" />
               </div>
-              <Progress value={85} className="h-2" />
+              <div className="h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
+                  style={{ width: '85%' }}
+                />
+              </div>
               <p className="text-sm text-muted-foreground">+15% from last month</p>
             </div>
           </CardContent>
@@ -594,9 +615,14 @@ export default function Page() {
                   <p className="text-sm font-medium">Response Time</p>
                   <p className="text-2xl font-bold">238ms</p>
                 </div>
-                <ActivityIcon className="h-8 w-8 text-muted-foreground" />
+                <ActivityIcon className="h-8 w-8 text-purple-500" />
               </div>
-              <Progress value={92} className="h-2" />
+              <div className="h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
+                  style={{ width: '92%' }}
+                />
+              </div>
               <p className="text-sm text-muted-foreground">Excellent performance</p>
             </div>
           </CardContent>
@@ -612,9 +638,14 @@ export default function Page() {
                   <p className="text-sm font-medium">Messages Today</p>
                   <p className="text-2xl font-bold">45.2k</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                <MessageSquare className="h-8 w-8 text-blue-500" />
               </div>
-              <Progress value={78} className="h-2" />
+              <div className="h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
+                  style={{ width: '78%' }}
+                />
+              </div>
               <p className="text-sm text-muted-foreground">+8% from yesterday</p>
             </div>
           </CardContent>

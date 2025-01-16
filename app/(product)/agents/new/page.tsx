@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { AuthDialog } from "@/components/Dialogs";
 import useAuth from "@/hooks/useAuth";
+import { toast, useToast } from "@/hooks/use-toast";
 
 interface Character {
   _id: string;
@@ -181,6 +182,7 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 
 export default function AgentsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -251,7 +253,11 @@ export default function AgentsPage() {
 
   const handleDeploy = async () => {
     if (!selectedCharacter) {
-      alert("Please select a character first");
+      toast({
+        title: "Error",
+        description: "Please select a character first",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -272,16 +278,22 @@ export default function AgentsPage() {
         })
       });
 
-      // Store the _id from the agent response
       setDeployedAgents(prev => ({
         ...prev,
         [selectedCharacter]: response.agent._id
       }));
       
-      alert("Agent deployed successfully!");
+      toast({
+        title: "Success",
+        description: "Agent deployed successfully!",
+      });
     } catch (error) {
       console.error('Deploy failed:', error);
-      alert("Failed to deploy agent");
+      toast({
+        title: "Error",
+        description: "Failed to deploy agent",
+        variant: "destructive"
+      });
     } finally {
       setIsDeploying(false);
     }
@@ -299,17 +311,23 @@ export default function AgentsPage() {
         method: 'POST'
       });
       
-      // Remove the agent ID from state
       setDeployedAgents(prev => {
         const newState = { ...prev };
         delete newState[characterId];
         return newState;
       });
       
-      alert("Agent stopped successfully!");
+      toast({
+        title: "Success",
+        description: "Agent stopped successfully!"
+      });
     } catch (error) {
       console.error('Failed to stop agent:', error);
-      alert("Failed to stop agent");
+      toast({
+        title: "Error",
+        description: "Failed to stop agent",
+        variant: "destructive"
+      });
     }
   };
 
@@ -324,9 +342,17 @@ export default function AgentsPage() {
       const updatedChars = await fetchWithAuth('/characters');
       setCharacters(updatedChars);
       setShowNewCharacterForm(false);
+      toast({
+        title: "Success",
+        description: "Character created successfully!"
+      });
     } catch (error) {
       console.error('Failed to create character:', error);
-      alert('Failed to create character');
+      toast({
+        title: "Error",
+        description: "Failed to create character",
+        variant: "destructive"
+      });
     }
   };
 
@@ -355,10 +381,17 @@ export default function AgentsPage() {
         });
       }
       
-      alert('Bot customization saved successfully!');
+      toast({
+        title: "Success",
+        description: "Bot customization saved successfully!"
+      });
     } catch (error) {
       console.error('Failed to save bot customization:', error);
-      alert('Failed to save bot customization');
+      toast({
+        title: "Error",
+        description: "Failed to save bot customization",
+        variant: "destructive"
+      });
     }
   };
 
@@ -375,10 +408,17 @@ export default function AgentsPage() {
       setCharacters(updatedChars);
       setIsEditing(false);
       setShowNewCharacterForm(false);
-      alert('Character updated successfully!');
+      toast({
+        title: "Success",
+        description: "Character updated successfully!"
+      });
     } catch (error) {
       console.error('Failed to update character:', error);
-      alert('Failed to update character');
+      toast({
+        title: "Error",
+        description: "Failed to update character",
+        variant: "destructive"
+      });
     }
   };
 
@@ -404,9 +444,17 @@ export default function AgentsPage() {
       const updatedChars = await fetchWithAuth('/characters');
       setCharacters(updatedChars);
       setSelectedCharacter('');
+      toast({
+        title: "Success",
+        description: "Character deleted successfully!"
+      });
     } catch (error) {
       console.error('Failed to delete character:', error);
-      alert('Failed to delete character');
+      toast({
+        title: "Error",
+        description: "Failed to delete character",
+        variant: "destructive"
+      });
     }
   };
 
@@ -480,7 +528,11 @@ export default function AgentsPage() {
       setShowBotCustomization(true);
     } catch (error) {
       console.error('Failed to fetch bot details:', error);
-      alert('Invalid bot token or failed to fetch bot details');
+      toast({
+        title: "Error",
+        description: "Invalid bot token or failed to fetch bot details",
+        variant: "destructive"
+      });
     }
   };
 
@@ -502,7 +554,7 @@ export default function AgentsPage() {
         {deployedAgents[selectedCharacter] ? (
           <Button
             onClick={() => handleStopAgent(selectedCharacter)}
-            className="flex items-center gap-2 rounded-[8px] border border-red-500 bg-red-500 px-4 py-2.5 font-semibold text-white hover:bg-red-600"
+            className="flex items-center gap-2 rounded-[8px] border border-pink-500 bg-pink-500 px-4 py-2.5 font-semibold text-white hover:bg-pink-600"
             variant="default"
           >
             <span className="h-4 w-4">⏹️</span>
@@ -511,7 +563,7 @@ export default function AgentsPage() {
         ) : (
           <Button
             onClick={handleDeploy}
-            className="flex items-center gap-2 rounded-[8px] border border-accent bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
+            className="flex items-center gap-2 rounded-[8px] border bg-gradient-to-r from-pink-500 to-purple-500 px-4 py-2.5 font-semibold text-white hover:opacity-90"
             variant="default"
             disabled={isDeploying || !selectedCharacter}
             style={{
@@ -553,7 +605,7 @@ export default function AgentsPage() {
               </select>
 
               <Button 
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 border-pink-500 text-pink-500 hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 hover:text-white hover:border-transparent transition-all duration-300"
                 variant="outline"
                 onClick={() => {
                   setSelectedCharacter("");
@@ -640,8 +692,8 @@ export default function AgentsPage() {
                     platform: e.target.value as 'discord' | 'telegram'
                   }))}
                 >
-                  <option value="discord">Discord</option>
                   <option value="telegram">Telegram</option>
+                  <option value="discord">Discord</option>
                 </select>
               </div>
               <div>
@@ -725,7 +777,7 @@ export default function AgentsPage() {
                       <div className="mt-4 flex justify-end">
                         <Button
                           onClick={handleSaveBotCustomization}
-                          className="bg-[#93B019] hover:bg-[#7c9416] text-white"
+                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white"
                         >
                           Save Customization
                         </Button>
@@ -747,7 +799,7 @@ export default function AgentsPage() {
             </h2>
             <div className="space-y-6">
               {/* Core Identity Section */}
-              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 md:p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">Core Identity</h3>
                 <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -804,7 +856,7 @@ export default function AgentsPage() {
               </div>
 
               {/* Personality Section */}
-              <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 md:p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">Personality</h3>
                 <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -871,7 +923,7 @@ export default function AgentsPage() {
               </div>
 
               {/* Speech Section */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">Speech Style</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -934,7 +986,7 @@ export default function AgentsPage() {
               </div>
 
               {/* Background Section */}
-              <div className="bg-gray-50 p-4 rounded-lg relative">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg relative">
                 <h3 className="text-lg font-medium mb-4">Background</h3>
                 
                 {newCharacter.background.backstory && (
@@ -1002,7 +1054,7 @@ export default function AgentsPage() {
               </div>
 
               {/* AI Model Configuration */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">AI Model Configuration</h3>
                 <div className="space-y-4">
                   <div>
@@ -1026,6 +1078,7 @@ export default function AgentsPage() {
                       id="use-custom-key"
                       checked={useCustomApiKey}
                       onCheckedChange={setUseCustomApiKey}
+                      className="data-[state=checked]:bg-purple-500"
                     />
                     <Label htmlFor="use-custom-key">Use Custom API Key</Label>
                   </div>
@@ -1052,7 +1105,7 @@ export default function AgentsPage() {
                         <Button
                           type="button"
                           variant="ghost"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-2"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-2 hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 hover:text-white transition-all duration-300"
                           onClick={() => setShowApiKey(!showApiKey)}
                         >
                           {showApiKey ? "Hide" : "Show"}
@@ -1066,7 +1119,7 @@ export default function AgentsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">Memory & Behavior Settings</h3>
                 <div className="space-y-4">
                   <div>
@@ -1087,7 +1140,7 @@ export default function AgentsPage() {
                         ...prev,
                         temperature: parseFloat(e.target.value)
                       }))}
-                      className="w-full accent-gray-300"
+                      className="w-full accent-purple-500"
                     />
                   </div>
 
@@ -1128,7 +1181,7 @@ export default function AgentsPage() {
                           }
                         }
                       }))}
-                      className="w-full accent-gray-300"
+                      className="w-full accent-purple-500"
                     />
                   </div>
 
@@ -1162,12 +1215,13 @@ export default function AgentsPage() {
                     setIsEditing(false);
                     setSelectedCharacter("");
                   }}
+                  className="hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 hover:text-white hover:border-transparent transition-all duration-300"
                 >
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleSaveCharacter}
-                  className="bg-[#93B019] hover:bg-[#7c9416] text-white"
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white"
                 >
                   {isEditing ? 'Save Changes' : 'Create Character'}
                 </Button>

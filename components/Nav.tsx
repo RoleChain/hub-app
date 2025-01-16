@@ -259,7 +259,7 @@ export default function Nav() {
       ) : (
         <div className="flex w-full cursor-pointer items-center gap-2 px-8 text-muted-foreground hover:text-foreground">
           <button
-            className="w-full rounded-[12px] bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
+            className="w-full rounded-[12px] bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 px-4 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity"
             onClick={() => setIsAuthDialogOpen(true)}
           >
             Sign up
