@@ -7,10 +7,10 @@ import {
 } from "@/components/ui/dialog";
 import AuthDialogContent from "./auth/AuthDialogContent";
 import { cn } from "@/lib/utils";
-import ModalIcon from "@/assets/icons/modalIcon.svg";
 import Image from "next/image";
 import useAuth from "@/hooks/useAuth";
-
+import Mask from "@/assets/images/mask.png";
+import logo from "@/assets/icons/logo.svg";
 export function AuthDialog({
   isOpen,
   toggleIsOpen,
@@ -30,7 +30,7 @@ export function AuthDialog({
       <DialogContent
         className={cn(
           "bg-background text-center shadow-[0px_2.581px_64.521px_0px] shadow-black/25",
-          "[background:radial-gradient(277.58%_98.91%_at_50%_0%,_rgba(171,_206,_30,_0.20)_0%,_transparent_100%),_#FFF]",
+          "[background:radial-gradient(277.58%_98.91%_at_50%_0%,_rgba(243,218,245)_0%,_transparent_100%),_#FFF]",
           "backgrop:[filter:_blur(20px)] backgrop:bg-red-200 backdrop-blur-xl",
         )}
       >
@@ -39,20 +39,21 @@ export function AuthDialog({
             Start Research & Earning with
           </DialogTitle>
           <DialogDescription className="text-3xl font-bold text-accent">
-            reAI
+            <Image
+              src={logo}
+              alt="logo"
+              className="mx-auto object-cover"
+            />
           </DialogDescription>
         </DialogHeader>
         <Image
-          src={ModalIcon}
+          src={Mask}
           alt="modal img"
           aria-hidden
-          width={302}
-          height={224}
-          className="mx-auto"
+         
+          className="mx-auto object-cover"
         />
-        <span className="mx-auto mb-4 mt-6 text-sm text-accent">
-          Ready Scholar?
-        </span>
+       
         <AuthDialogContent />
       </DialogContent>
     </Dialog>
