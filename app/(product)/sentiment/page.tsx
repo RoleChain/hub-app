@@ -54,7 +54,7 @@ const CHART_COLORS = {
   hover: '#F9FAFB'          // Hover state
 }
 
-export function AreaChart({ data, className, ...props }: ChartProps) {
+function AreaChart({ data, className, ...props }: ChartProps) {
   return (
     <div className={cn("w-full h-[350px]", className)} {...props}>
       <ResponsiveContainer width="100%" height="100%">
@@ -109,7 +109,7 @@ export function AreaChart({ data, className, ...props }: ChartProps) {
   )
 }
 
-export function BarChart({ data, className, ...props }: ChartProps) {
+function BarChart({ data, className, ...props }: ChartProps) {
   return (
     <div className={cn("w-full h-[350px]", className)} {...props}>
       <ResponsiveContainer width="100%" height="100%">

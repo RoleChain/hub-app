@@ -16,14 +16,25 @@ import axios from "axios";
 import Markdown from "markdown-to-jsx";
 import CopyAction from "@/components/chat/MessageActions/Copy";
 import { v4 } from "uuid";
+import { marked } from 'marked';
 
 type Message = {
   messageId: string;
-  // chatId: string;
-  // createdAt: Date;
   content: string;
   role: "user" | "assistant";
   sources?: unknown[];
+  renderedContent?: string;
+  symbol?: string;
+  marketData?: {
+    price: number;
+    priceChange24h: number;
+    marketCap: number;
+    volume24h: number;
+    ath: number;
+    atl: number;
+    sentiment: number;
+    lastUpdated: string;
+  };
 };
 
 const Page = () => {
@@ -49,33 +60,144 @@ const Page = () => {
     ]);
     setIsLoading(true);
     try {
-      const { data } = await axios.post<{
-        answer: string;
-        sources?: [
-          {
-            [key: string]: string;
-          },
-        ];
-      }>(
-        "http://localhost:3001/chat/search",
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      
+      const { data } = await axios.post(
+        'http://localhost:3002/agents/chartmaster/analyze',
         {
-          query,
+          question: query
         },
         {
-          withCredentials: true,
-        },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
+      
+      if (data.success && data.markdown) {
+        const chartId = v4();
+        
+        // Configure marked options if needed
+        marked.setOptions({
+          breaks: true,
+          gfm: true
+        });
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          messageId: v4(),
-          role: "assistant",
-          content: data.answer as string,
-          sources: data.sources,
-        },
-      ]);
-      console.log(data);
+        // Parse the markdown safely
+        let parsedMarkdown;
+        try {
+          parsedMarkdown = marked(data.markdown);
+        } catch (err) {
+          console.error('Error parsing markdown:', err);
+          parsedMarkdown = data.markdown;
+        }
+
+        // Add market data summary
+        const marketDataHtml = data.marketData ? `
+          <div class="market-data-summary mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="stat-item">
+                <div class="text-sm text-gray-500">Price</div>
+                <div class="font-bold">$${data.marketData.price.toLocaleString()}</div>
+              </div>
+              <div class="stat-item">
+                <div class="text-sm text-gray-500">24h Change</div>
+                <div class="font-bold ${data.marketData.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'}">
+                  ${data.marketData.priceChange24h.toFixed(2)}%
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="text-sm text-gray-500">Market Cap</div>
+                <div class="font-bold">$${(data.marketData.marketCap / 1e6).toFixed(2)}M</div>
+              </div>
+              <div class="stat-item">
+                <div class="text-sm text-gray-500">24h Volume</div>
+                <div class="font-bold">$${(data.marketData.volume24h / 1e6).toFixed(2)}M</div>
+              </div>
+            </div>
+          </div>` : '';
+
+        const combinedContent = `
+          <div class="analysis-container">
+            ${marketDataHtml}
+            <div class="tradingview-widget-container mb-4" style="height: 500px !important;">
+              <div id="tradingview_${chartId}" style="height: 500px !important; min-height: 500px !important;"></div>
+            </div>
+            <div class="markdown-content">
+              ${parsedMarkdown}
+            </div>
+          </div>`;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            messageId: v4(),
+            role: "assistant",
+            content: data.markdown,
+            renderedContent: combinedContent,
+            symbol: data.symbol,
+            marketData: data.marketData
+          },
+        ]);
+
+        // Initialize TradingView widget
+        setTimeout(() => {
+          const script = document.createElement('script');
+          script.src = "https://s3.tradingview.com/tv.js";
+          script.async = true;
+          script.onload = () => {
+            const tryLoadChart = (index: number = 0) => {
+              if (index >= data.chartConfig.alternativePairs.length) {
+                console.error('No valid trading pair found');
+                return;
+              }
+
+              try {
+                // @ts-ignore
+                new TradingView.widget({
+                  "width": "100%",
+                  "height": "500",
+                  "symbol": data.chartConfig.alternativePairs[index],
+                  "interval": data.chartConfig.interval,
+                  "timezone": "Etc/UTC",
+                  "theme": "dark",
+                  "style": "1",
+                  "locale": "en",
+                  "toolbar_bg": "#f1f3f6",
+                  "enable_publishing": false,
+                  "allow_symbol_change": true,
+                  "container_id": `tradingview_${chartId}`,
+                  "studies": [
+                    "RSI@tv-basicstudies",
+                    "MACD@tv-basicstudies",
+                    "BB@tv-basicstudies"
+                  ],
+                  "autosize": false,
+                  "loading_screen": { backgroundColor: "#000000" },
+                  "onChartError": () => {
+                    console.error(`Failed to load chart with pair ${data.chartConfig.alternativePairs[index]}`);
+                    tryLoadChart(index + 1);
+                  }
+                });
+              } catch (error) {
+                console.error(`Error initializing chart with pair ${data.chartConfig.alternativePairs[index]}:`, error);
+                tryLoadChart(index + 1);
+              }
+            };
+
+            tryLoadChart(); // Start with the current pairIndex
+          };
+          document.head.appendChild(script);
+        }, 100);
+        
+        return;
+      }
+
+      // Fall back to regular chat API if not an analysis query
+
+       
     } catch (err) {
       toast({
         title: "Something went wrong",
@@ -156,14 +278,23 @@ const Page = () => {
                     </>
                   ) : (
                     <div className="max flex flex-col gap-4">
-                      <Markdown
-                        className={cn(
-                          "prose max-w-[80%] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0",
-                          "break-words text-sm font-medium text-black dark:text-white md:text-base",
-                        )}
-                      >
-                        {message.content}
-                      </Markdown>
+                      {message.renderedContent ? (
+                        <div className="flex flex-col gap-4 w-full">
+                          <div 
+                            className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
+                            dangerouslySetInnerHTML={{ __html: message.renderedContent }}
+                          />
+                        </div>
+                      ) : (
+                        <Markdown
+                          className={cn(
+                            "prose max-w-[80%] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0",
+                            "break-words text-sm font-medium text-black dark:text-white md:text-base",
+                          )}
+                        >
+                          {message.content}
+                        </Markdown>
+                      )}
                       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 lg:mr-24">
                         <CopyAction report={message.content} />
                         <div className="flex gap-2">
@@ -198,21 +329,58 @@ const Page = () => {
             </button>
           </div>
         ) : (
-          <EmptyChat
-            handleQuery={(query: string) => {
-              handleQuery(query);
-            }}
-          />
+          <div className="flex flex-col w-full max-w-3xl mx-auto pt-8 pb-12">
+            <h1 className="text-3xl font-bold mb-3">
+              Research for the crypto intelligence age
+            </h1>
+            <p className="text-gray-600 mb-8">
+              Automate market analysis, price action research, and technical indicators for any cryptocurrency.
+            </p>
+            
+            <div className="w-full space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none"/>
+                </svg>
+                <h2 className="text-base text-gray-600">Popular Studies</h2>
+              </div>
+              <p className="text-sm text-gray-500">Use these topics to get started</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  "Analyze Bitcoin (BTC) price action and market structure",
+                  "Analyze Ethereum (ETH) technical indicators and trends",
+                  "Analyze Solana (SOL) performance and momentum",
+                  "Analyze TON network growth and price targets",
+                  "Analyze BNB Chain ecosystem and metrics",
+                  "Analyze Cardano (ADA) development activity",
+                ].map((query) => (
+                  <button
+                    key={query}
+                    onClick={() => handleQuery(query)}
+                    className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
+                  >
+                    <span className="mr-2">{query}</span>
+                    <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
         {/* Footer */}
         {user ? (
           <div className="sticky bottom-0 mt-auto flex gap-4 py-5">
-            <div className="relative flex h-full w-full flex-col rounded-[12px] border border-[#ECECEC] bg-white outline-accent focus-within:outline">
+            <div className="relative flex h-full w-full flex-col rounded-[12px] border border-[#ECECEC] bg-white outline-[#E056B8] focus-within:outline">
               <input
                 ref={queryInputRef}
                 autoFocus
                 type="text"
-                placeholder={"Start your research"}
+                placeholder="Start your research"
                 className="h-full w-full border-none bg-transparent py-2 pe-16 ps-4 focus-within:outline-none disabled:cursor-no-drop"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -223,7 +391,7 @@ const Page = () => {
               />
             </div>
             <button
-              className="flex h-fit items-center gap-4 self-end rounded-[12px] bg-accent p-4 hover:bg-[#93B019] disabled:animate-pulse disabled:cursor-progress"
+              className="flex h-fit items-center gap-4 self-end rounded-[12px] bg-gradient-to-r from-[#E056B8] to-[#8B5CF6] p-4 hover:from-[#D346A7] hover:to-[#7C3AED] disabled:animate-pulse disabled:cursor-progress"
               onClick={() => handleQuery(query)}
               disabled={isLoading}
             >
@@ -242,13 +410,11 @@ const Page = () => {
             </button>
           </div>
         ) : (
-          <div
-            className={"absolute bottom-0 left-0 right-0 isolate bg-white py-5"}
-          >
+          <div className={"absolute bottom-0 left-0 right-0 isolate bg-white py-5"}>
             <div className="absolute inset-0 -mx-12 h-[1px] w-screen bg-[#dcdcdc]" />
             <div className="mx-auto w-fit">
               <button
-                className="w-full rounded-[12px] bg-accent px-4 py-2.5 font-semibold text-accent-foreground hover:bg-[#93B019]"
+                className="w-full rounded-[12px] bg-gradient-to-r from-[#E056B8] to-[#8B5CF6] px-4 py-2.5 font-semibold text-white hover:from-[#D346A7] hover:to-[#7C3AED]"
                 onClick={() => setIsAuthDialogOpen(true)}
               >
                 Sign up to contribute and earn rewards

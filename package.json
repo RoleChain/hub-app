@@ -30,6 +30,7 @@
     "libphonenumber-js": "^1.11.17",
     "lucide-react": "^0.447.0",
     "markdown-to-jsx": "^7.5.0",
+    "marked": "^15.0.6",
     "next": "14.2.14",
     "next-auth": "^4.24.8",
     "react": "^18",

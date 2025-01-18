@@ -4,15 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
 import Logo from "@/assets/icons/logo.svg";
-import MissionsIcon from "@/assets/icons/missions_icon.svg";
-import SquadsIcon from "@/assets/icons/squads_icon.svg";
 import ChatIcon from "@/assets/icons/chat_icon.svg";
 import { AuthDialog } from "@/components/Dialogs";
 import useAuth from "@/hooks/useAuth";
 import PapersIcon from "./icons/papers";
 import ImgBlurTemp from "./icons/imgBlurTemp";
 import * as Avatar from "@radix-ui/react-avatar";
-import { HistoryIcon, LogOutIcon } from "lucide-react";
+import { HistoryIcon, LogOutIcon, PlusIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -24,8 +22,8 @@ export default function Nav() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-10 box-border hidden w-full flex-col bg-[#FCFCFC] shadow-inner shadow-[#ECECEC] sm:flex",
-        `max-w-[312px]`,
+        "fixed inset-y-0 left-0 z-10 box-border w-full flex-col bg-white shadow-inner shadow-[#ECECEC] hidden sm:flex",
+        "max-w-[312px]"
       )}
     >
       <nav className="flex flex-col items-center pt-8">
@@ -94,11 +92,11 @@ export default function Nav() {
           {/*   <span className="inline-block">Chat General</span> */}
           {/* </Link> */}
           <Link
-            href="/chat/reports"
+            href="/chat"
             className={cn(
               "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
               segments.includes("reports")
-                ? "border-accent bg-[#F6FFD1] text-black"
+                ? "border-purple-200 bg-purple-50 text-purple-900"
                 : null,
             )}
           >
@@ -115,12 +113,24 @@ export default function Nav() {
             className={cn(
               "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
               segments.includes("chats")
-                ? "border-accent bg-[#F6FFD1] text-black"
+                ? "border-purple-200 bg-purple-50 text-purple-900"
                 : null,
             )}
           >
             <HistoryIcon stroke="#667085" />
             <span className="inline-block">Chat History</span>
+          </Link>
+          <Link
+            href="/agents/new"
+            className={cn(
+              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
+              segments.includes("create-agent")
+                ? "border-purple-200 bg-purple-50 text-purple-900"
+                : null,
+            )}
+          >
+            <PlusIcon stroke="#667085" />
+            <span className="inline-block">Create Agent</span>
           </Link>
           {/* <Link */}
           {/*   href="/chat/embed" */}
@@ -142,7 +152,7 @@ export default function Nav() {
         </div>
       </nav>
       {/* separator #2 */}
-      <div className="mx-auto my-6 h-[1px] w-[80%] border-t-[0.5px] border-[#444]" />
+      {/* <div className="mx-auto my-6 h-[1px] w-[80%] border-t-[0.5px] border-[#444]" />
       {user && (
         <div className="flex flex-col gap-2 px-8">
           <div className="flex items-center justify-between">
@@ -172,7 +182,7 @@ export default function Nav() {
             <span className="text-xs font-medium opacity-50">23 mins ago</span>
           </div>
         </div>
-      )}
+      )} */}
       {user ? (
         <div className="mb-2 mt-auto w-full px-8 pb-5">
           <span className="text-sm font-semibold text-[#344054]">My Stats</span>
@@ -192,7 +202,7 @@ export default function Nav() {
             </div>
             <div className="flex select-none flex-col rounded-[10px] border bg-white p-3">
               <span className="text-sm font-medium tracking-tight text-[#444] opacity-75">
-                $REAI Earned
+                $ROAI Earned
               </span>
               <div className="flex items-center gap-1.5">
                 <ImgBlurTemp
@@ -203,10 +213,10 @@ export default function Nav() {
               </div>
             </div>
           </div>
-          <div className="mt-3 flex justify-between rounded-lg border border-accent bg-[#F6FFD1] px-3 py-2">
-            <span className="text-xs">Invite to curate together.</span>
+          <div className="mt-3 flex justify-between rounded-lg border border-purple-200 bg-purple-50 px-3 py-2">
+            <span className="text-xs text-purple-900">Invite to curate together.</span>
             <button
-              className="rounded-[6px] bg-accent p-1.5 text-sm uppercase text-white"
+              className="rounded-[6px] bg-purple-600 p-1.5 text-sm uppercase text-white hover:bg-purple-700"
               onClick={() => {
                 copyToClip("reaiscieco");
                 toast({
@@ -259,7 +269,7 @@ export default function Nav() {
       ) : (
         <div className="flex w-full cursor-pointer items-center gap-2 px-8 text-muted-foreground hover:text-foreground">
           <button
-            className="w-full rounded-[12px] bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 px-4 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity"
+            className="w-full rounded-[12px] bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 px-4 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity"
             onClick={() => setIsAuthDialogOpen(true)}
           >
             Sign up

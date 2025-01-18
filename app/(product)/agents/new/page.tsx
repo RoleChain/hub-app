@@ -183,7 +183,7 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 export default function AgentsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [_isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isDeploying, setIsDeploying] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<string>("");
