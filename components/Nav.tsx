@@ -34,7 +34,7 @@ export default function Nav() {
           <Image
             src={Logo}
             alt="Site Logo"
-            
+            className="mt-12 md:mt-0"
           />
         </Link>
         {/* separator #1 */}
