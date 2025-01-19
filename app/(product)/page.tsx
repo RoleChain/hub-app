@@ -538,7 +538,7 @@ function TaskCard({ task }: { task: AgentTask }) {
                   }}
                 />
                 <div className={cn(
-                  "hidden w-8 h-8 rounded-full flex items-center justify-center", 
+                  "hidden w-8 h-8 rounded-full  items-center justify-center", 
                   gradientStyle.iconContainer
                 )}>
                   <Bot className="w-5 h-5 text-primary" />

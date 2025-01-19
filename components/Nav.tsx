@@ -216,9 +216,9 @@ export default function Nav() {
           <div className="mt-3 flex justify-between rounded-lg border border-purple-200 bg-purple-50 px-3 py-2">
             <span className="text-xs text-purple-900">Invite to curate together.</span>
             <button
-              className="rounded-[6px] bg-purple-600 p-1.5 text-sm uppercase text-white hover:bg-purple-700"
+              className="rounded-[6px] bg-purple-600 p-1.5 md:text-sm text-xs uppercase text-white hover:bg-purple-700"
               onClick={() => {
-                copyToClip("reaiscieco");
+                copyToClip("rolecieco");
                 toast({
                   title: "Copied!",
                   description:
