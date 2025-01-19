@@ -162,7 +162,7 @@ const CHARACTER_TEMPLATES = {
 };
 
 // Add BASE_URL constant at the top level
-const BASE_URL = 'https://api.rolechain.org';
+const BASE_URL = 'http://localhost:3002';
 
 // Update fetchWithAuth utility function
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {

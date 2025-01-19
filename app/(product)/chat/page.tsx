@@ -37,6 +37,13 @@ type Message = {
   };
 };
 
+const formatCryptoPrice = (price: number): string => {
+  if (price < 0.01) return price.toFixed(6);
+  if (price < 1) return price.toFixed(4);
+  if (price < 10) return price.toFixed(3);
+  return price.toFixed(2);
+};
+
 const Page = () => {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
@@ -64,7 +71,7 @@ const Page = () => {
       const token = localStorage.getItem('token');
       
       const { data } = await axios.post(
-        'https://api.rolechain.org/agents/chartmaster/analyze',
+        'http://localhost:3002/agents/chartmaster/analyze',
         {
           question: query
         },
@@ -100,7 +107,7 @@ const Page = () => {
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div class="stat-item">
                 <div class="text-sm text-gray-500">Price</div>
-                <div class="font-bold">$${data.marketData.price.toLocaleString()}</div>
+                <div class="font-bold">$${formatCryptoPrice(data.marketData.price)}</div>
               </div>
               <div class="stat-item">
                 <div class="text-sm text-gray-500">24h Change</div>
