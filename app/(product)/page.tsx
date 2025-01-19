@@ -66,7 +66,7 @@ interface Agent {
   };
 }
 
-const BASE_URL = 'https://api.rolechaing.org';
+const BASE_URL = 'https://api.rolechain.org';
 
 // Update fetchWithAuth utility function
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
