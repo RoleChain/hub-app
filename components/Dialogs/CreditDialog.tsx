@@ -38,7 +38,7 @@ export function CreditDialog({
           <div className="mx-auto mb-2.5 block h-[1px] w-[224px] bg-black" />
           <DialogDescription className="mt-2.5 flex flex-col items-center">
             <span className="font-sm font-medium">Received</span>
-            <span className="text-3xl font-semibold text-black">200 $reAI</span>
+            <span className="text-3xl font-semibold text-black">200 $role</span>
           </DialogDescription>
         </DialogHeader>
         <Image

@@ -40,7 +40,7 @@ import TelegramDialogContent from "./auth/TelegramDailogContent";
               Start Research & Earning with
             </DialogTitle>
             <DialogDescription className="text-3xl font-bold text-accent">
-              reAI
+              role
             </DialogDescription>
           </DialogHeader>
           <Image
