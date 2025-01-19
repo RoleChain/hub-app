@@ -162,7 +162,7 @@ const CHARACTER_TEMPLATES = {
 };
 
 // Add BASE_URL constant at the top level
-const BASE_URL = 'https://rolechaing.org';
+const BASE_URL = 'https://api.rolechaing.org';
 
 // Update fetchWithAuth utility function
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
