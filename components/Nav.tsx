@@ -191,7 +191,7 @@ export default function Nav() {
               <span className="text-sm font-medium tracking-tight text-[#444] opacity-75">
                 Contributions
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 md:mt-0 mt-4">
                 <PapersIcon
                   width={16}
                   height={16}
