@@ -22,7 +22,7 @@ export default function Nav() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-10 box-border w-full flex-col bg-white shadow-inner shadow-[#ECECEC] hidden sm:flex",
+        "fixed inset-y-0 left-0 z-10 box-border w-full flex-col bg-white shadow-inner shadow-[#ECECEC] flex",
         "max-w-[312px]"
       )}
     >
