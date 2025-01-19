@@ -55,7 +55,7 @@ export function CreditDialog({
             <button
               className="rounded-[6px] bg-accent p-1.5 text-sm uppercase text-white"
               onClick={() => {
-                copyToClip("reaiscieco");
+                copyToClip(" rolecieco");
                 toast({
                   title: "Copied!",
                   description:
@@ -63,7 +63,7 @@ export function CreditDialog({
                 });
               }}
             >
-              reaiscieco
+              rolecieco
             </button>
           </div>
         </DialogFooter>
