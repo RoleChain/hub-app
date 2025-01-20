@@ -36,7 +36,7 @@ export function AuthDialog({
       >
         <DialogHeader className="flex flex-col items-center justify-center text-center">
           <DialogTitle className="text-base font-normal">
-            Start Research & Earning with
+            The Role Play Agent Infrastructure for Web3
           </DialogTitle>
           <DialogDescription className="text-3xl font-bold text-accent">
             <Image
@@ -50,10 +50,9 @@ export function AuthDialog({
           src={Mask}
           alt="modal img"
           aria-hidden
-         
           className="mx-auto object-cover"
         />
-       
+
         <AuthDialogContent />
       </DialogContent>
     </Dialog>
