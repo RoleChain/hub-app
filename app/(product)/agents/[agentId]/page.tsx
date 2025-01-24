@@ -12,8 +12,9 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Rocket } from "lucide-react";
 import { ChevronDown } from "lucide-react";
-import { CHARACTER_TEMPLATES, TagInput } from "../new/page";
+import { CHARACTER_TEMPLATES } from "../new/constants";
 import { PlusCircle } from "lucide-react";
+import { TagInput } from "../new/tagInput";
 
 // Rename Character interface to Role
 interface Role {

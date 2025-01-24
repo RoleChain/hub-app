@@ -504,19 +504,22 @@ interface TaskGroups {
   [key: string]: AgentTask[];
 }
 
+type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'failed' | 'running';
+
 function TaskCard({ task }: { task: AgentTask }) {
   // Get status styling
-  const getStatusStyle = (status: string) => {
+  const getStatusStyle = (status: TaskStatus) => {
     const styles = {
       'pending': { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: <Clock className="h-4 w-4" /> },
       'in-progress': { bg: 'bg-blue-100', text: 'text-blue-800', icon: <ActivityIcon className="h-4 w-4 animate-pulse" /> },
       'completed': { bg: 'bg-green-100', text: 'text-green-800', icon: <CheckCircle className="h-4 w-4" /> },
-      'failed': { bg: 'bg-red-100', text: 'text-red-800', icon: <XCircle className="h-4 w-4" /> }
+      'failed': { bg: 'bg-red-100', text: 'text-red-800', icon: <XCircle className="h-4 w-4" /> },
+      'running': { bg: 'bg-blue-100', text: 'text-blue-800', icon: <ActivityIcon className="h-4 w-4 animate-pulse" /> }
     };
-    return styles[status as keyof typeof styles] || styles.pending;
+    return styles[status] || styles.pending;
   };
 
-  const statusStyle = getStatusStyle(task.status);
+  const statusStyle = getStatusStyle(task.status as TaskStatus);
 
   return (
     <Card className={cn(gradientStyle.card, "relative overflow-hidden")}>
@@ -862,6 +865,70 @@ interface ActivityResponse {
   activities: Activity[];
 }
 
+// Add dummy data constants at the top level
+const DUMMY_AGENTS: Agent[] = [
+  {
+    _id: "dummy1",
+    name: "Demo Support Bot",
+    description: "A demo customer support agent",
+    status: "active",
+    active: true,
+    activeChats: 3,
+    logs: [],
+    role: "support",
+    messageCount: 150,
+    activeTasks: [
+      {
+        _id: "task1",
+        taskName: "Customer Support",
+        taskType: "support",
+        status: "in-progress",
+        createdAt: new Date().toISOString(),
+        parameters: {}
+      }
+    ]
+  },
+  {
+    _id: "dummy2",
+    name: "Demo Sales Assistant",
+    description: "A demo sales assistant agent",
+    status: "active",
+    active: false,
+    activeChats: 0,
+    logs: [],
+    role: "sales",
+    messageCount: 75,
+    activeTasks: []
+  }
+];
+
+const DUMMY_DASHBOARD_STATS: DashboardStats = {
+  overview: {
+    activeAgents: 2,
+    activeTasks: 3,
+    failedTasks: 1,
+    totalTasks: 10
+  },
+  community: {
+    totalUsers: 250,
+    percentageChange: "+12%"
+  },
+  performance: {
+    responseTime: "1.2s",
+    status: "Healthy"
+  },
+  messages: {
+    today: 145,
+    yesterday: 132,
+    percentageChange: "+9.8%"
+  },
+  memories: {
+    today: 50,
+    yesterday: 45,
+    percentageChange: "+11.1%"
+  }
+};
+
 export default function Page() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -941,8 +1008,14 @@ export default function Page() {
     const fetchDashboardStats = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchWithAuth('/agents/dashboard/stats');
+        if (!user) {
+          // Use dummy stats when not logged in
+          setDashboardStats(DUMMY_DASHBOARD_STATS);
+          setError(null);
+          return;
+        }
 
+        const response = await fetchWithAuth('/agents/dashboard/stats');
         setDashboardStats(response);
         setError(null);
       } catch (error) {
@@ -954,9 +1027,9 @@ export default function Page() {
     };
 
     fetchDashboardStats();
-    const interval = setInterval(fetchDashboardStats, 30000); // Refresh every 30 seconds
+    const interval = setInterval(fetchDashboardStats, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const fetchRecentActivities = async () => {
@@ -982,23 +1055,25 @@ export default function Page() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
+        if (!user) {
+          // Use dummy data when not logged in
+          setAgents(DUMMY_AGENTS);
+          return;
+        }
+        
         const response = await fetchWithAuth('/agents');
         setAgents(response);
-        // If we had a selected agent, update it with the new data
         if (selectedAgent) {
           const updatedSelectedAgent = response.find((a: Agent) => a._id === selectedAgent._id);
           setSelectedAgent(updatedSelectedAgent || null);
         }
       } catch (error) {
         console.error('Failed to fetch agents:', error);
-        // Optionally set an error state here
       }
     };
 
-    if (user) {  // Only fetch if user is authenticated
-      fetchAgents();
-    }
-  }, [user]); // Depend on user to refetch when auth state changes
+    fetchAgents();
+  }, [user]);
 
   const renderAgentsContent = () => {
     if (agents.length === 0) {
@@ -1176,6 +1251,24 @@ export default function Page() {
       if (activeTab === 'tasks') {
         try {
           setIsLoading(true);
+          if (!user) {
+            // Use dummy tasks when not logged in
+            setTasks({
+              'in-progress': [
+                {
+                  id: 'dummy-task-1',
+                  agentName: 'Demo Support Bot',
+                  taskName: 'Customer Support',
+                  taskType: 'support',
+                  status: 'pending',
+                  parameters: {},
+                  startedAt: new Date().toISOString()
+                }
+              ]
+            });
+            return;
+          }
+
           const response = await fetchWithAuth('/agents/tasks/all');
           setTasks(response.tasks);
         } catch (error) {
@@ -1187,10 +1280,9 @@ export default function Page() {
     };
 
     fetchTasks();
-    // Refresh every 30 seconds
     const interval = setInterval(fetchTasks, 30000);
     return () => clearInterval(interval);
-  }, [activeTab]);
+  }, [activeTab, user]);
 
   return (
     <section className="mt-8">

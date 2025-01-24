@@ -25,7 +25,12 @@ export function AuthDialog({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={toggleIsOpen}
+      onOpenChange={(open) => {
+        if (open === false && !user) {
+          return;
+        }
+        toggleIsOpen();
+      }}
     >
       <DialogContent
         className={cn(
