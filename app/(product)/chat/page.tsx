@@ -71,7 +71,7 @@ const Page = () => {
       const token = localStorage.getItem('token');
       
       const { data } = await axios.post(
-        'http://localhost:3002/agents/chartmaster/analyze',
+        'https://api.rolechain.org/agents/chartmaster/analyze',
         {
           question: query
         },

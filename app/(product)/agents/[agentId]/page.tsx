@@ -10,7 +10,6 @@ import { AuthDialog } from "@/components/Dialogs";
 import useAuth from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Rocket } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import { CHARACTER_TEMPLATES } from "../new/constants";
 import { PlusCircle } from "lucide-react";
@@ -76,7 +75,7 @@ interface PlatformConfig {
   botBio: string;
 }
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = 'https://api.rolechain.org';
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token');

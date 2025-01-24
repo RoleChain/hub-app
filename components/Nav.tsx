@@ -14,7 +14,7 @@ import { HistoryIcon, LogOutIcon, PlusIcon, ChevronDown, Bot } from "lucide-reac
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = 'https://api.rolechain.org';
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');
