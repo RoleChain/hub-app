@@ -10,15 +10,66 @@ import useAuth from "@/hooks/useAuth";
 import PapersIcon from "./icons/papers";
 import ImgBlurTemp from "./icons/imgBlurTemp";
 import * as Avatar from "@radix-ui/react-avatar";
-import { HistoryIcon, LogOutIcon, PlusIcon } from "lucide-react";
+import { HistoryIcon, LogOutIcon, PlusIcon, ChevronDown, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const BASE_URL = 'http://localhost:3002';
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers,
+  };
+  
+  const response = await fetch(`${BASE_URL}${url}`, { ...options, headers });
+  if (!response.ok) {
+    throw new Error(`API call failed: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+type Agent = {
+  _id: string;
+  name: string;
+};
 
 export default function Nav() {
   const segments = useSelectedLayoutSegments();
   const { user, isConnecting, signOut } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [isAgentsOpen, setIsAgentsOpen] = useState(false);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [isLoadingAgents, setIsLoadingAgents] = useState(false);
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      if (!user) return; // Don't fetch if user is not logged in
+      
+      setIsLoadingAgents(true);
+      try {
+        const data = await fetchWithAuth('/agents');
+        setAgents(data);
+      } catch (error) {
+        console.error('Failed to fetch agents:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load agents",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingAgents(false);
+      }
+    };
+
+    if (isAgentsOpen) {
+      fetchAgents();
+    }
+  }, [isAgentsOpen, user]);
+
   return (
     <aside
       className={cn(
@@ -40,57 +91,42 @@ export default function Nav() {
         {/* separator #1 */}
         <div className="mx-auto my-6 h-[1px] w-[80%] border-t-[0.01em] border-[#444]" />
         <div className="flex w-full flex-col gap-1 px-4">
-          {/* <Link
-            className={cn(
-              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-              segments.length === 0 || segments.includes("mission")
-                ? "border-accent bg-[#F6FFD1] text-black"
-                : null,
-            )}
-            href="/"
-          >
-            <Image
-              src={MissionsIcon}
-              alt=""
-              width="24"
-              height="24"
-            />
-            <span className="inline-block">Missions</span>
-          </Link>
-          <Link
-            href="/squads"
-            className={cn(
-              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-              segments.includes("squads")
-                ? "border-accent bg-[#F6FFD1] text-black"
-                : null,
-            )}
-          >
-            <Image
-              src={SquadsIcon}
-              alt=""
-              width="24"
-              height="24"
-            />
-            <span className="inline-block">Squads</span>
-          </Link> */}
-          {/* <Link */}
-          {/*   href="/chat" */}
-          {/*   className={cn( */}
-          {/*     "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors", */}
-          {/*     segments.length === 1 && segments[0] === "chat" */}
-          {/*       ? "border-accent bg-[#F6FFD1] text-black" */}
-          {/*       : null, */}
-          {/*   )} */}
-          {/* > */}
-          {/*   <Image */}
-          {/*     src={ChatIcon} */}
-          {/*     alt="" */}
-          {/*     width="24" */}
-          {/*     height="24" */}
-          {/*   /> */}
-          {/*   <span className="inline-block">Chat General</span> */}
-          {/* </Link> */}
+          {user && (
+            <button
+              onClick={() => setIsAgentsOpen(!isAgentsOpen)}
+              className={cn(
+                "flex w-full items-center justify-between gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
+                isAgentsOpen ? "border-purple-200 bg-purple-50 text-purple-900" : null
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Bot 
+                  size={20}
+                  className="text-[#667085]" 
+                />
+                <span className="inline-block">All Agents</span>
+              </div>
+              <ChevronDown
+                className={cn("transition-transform", isAgentsOpen && "rotate-180")}
+                size={20}
+                stroke="#667085"
+              />
+            </button>
+          )}
+          {isAgentsOpen && agents.map((agent) => (
+            <Link
+              key={agent._id}
+              href={`/agents/${agent._id}`}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
+                segments.includes("agents") && segments.includes(agent._id)
+                  ? "border-purple-200 bg-purple-50 text-purple-900"
+                  : null
+              )}
+            >
+              {agent.name}
+            </Link>
+          ))}
           <Link
             href="/chat"
             className={cn(
@@ -120,35 +156,20 @@ export default function Nav() {
             <HistoryIcon stroke="#667085" />
             <span className="inline-block">Chat History</span>
           </Link>
-          <Link
-            href="/agents/new"
-            className={cn(
-              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-              segments.includes("create-agent")
-                ? "border-purple-200 bg-purple-50 text-purple-900"
-                : null,
-            )}
-          >
-            <PlusIcon stroke="#667085" />
-            <span className="inline-block">Create Agent</span>
-          </Link>
-          {/* <Link */}
-          {/*   href="/chat/embed" */}
-          {/*   className={cn( */}
-          {/*     "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors", */}
-          {/*     segments.includes("embed") */}
-          {/*       ? "border-accent bg-[#F6FFD1] text-black" */}
-          {/*       : null, */}
-          {/*   )} */}
-          {/* > */}
-          {/*   <Image */}
-          {/*     src={ChatIcon} */}
-          {/*     alt="" */}
-          {/*     width="24" */}
-          {/*     height="24" */}
-          {/*   /> */}
-          {/*   <span className="inline-block">Chat PDF</span> */}
-          {/* </Link> */}
+          {user && (
+            <Link
+              href="/agents/new"
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
+                segments.includes("agents") && segments.includes("new")
+                  ? "border-purple-200 bg-purple-50 text-purple-900"
+                  : null
+              )}
+            >
+              <PlusIcon stroke="#667085" />
+              <span className="inline-block">New Agent</span>
+            </Link>
+          )}
         </div>
       </nav>
       {/* separator #2 */}

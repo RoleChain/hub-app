@@ -62,7 +62,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     setIsConnecting(true);
     router.push(
       //   // "https://research-ai-backend-production.up.railway.app/auth/google",
-      "https://api.rolechain.org/auth/google",
+      "http://localhost:3002/auth/google",
     );
     setIsConnecting(false);
   };
@@ -87,13 +87,23 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     // Fetch latest user data using the stored token
-    fetch("https://api.rolechain.org/auth/me", {
+    fetch("http://localhost:3002/auth/me", {
       headers: {
         Authorization: `Bearer ${localToken}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
+        if (data.message === "Invalid or expired token") {
+          clearLocalToken();
+          setUser(null);
+          toast({
+            title: "Session expired",
+            description: "Please login again",
+            variant: "destructive",
+          });
+          return;
+        }
         setUser(data);
       })
       .catch((error) => {
@@ -101,19 +111,30 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         clearLocalToken();
         setUser(null);
       });
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (token) {
       setLocalToken("token", token);
       
-      fetch("https://api.rolechain.org/auth/me", {
+      fetch("http://localhost:3002/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
         .then((res) => res.json())
         .then((data) => {
+          if (data.message === "Invalid or expired token") {
+            clearLocalToken();
+            setUser(null);
+            toast({
+              title: "Invalid token",
+              description: "Please try logging in again",
+              variant: "destructive",
+            });
+            router.replace("/login");
+            return;
+          }
           setUser(data);
           toast({
             title: "Successfully logged in",
@@ -128,7 +149,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           });
         });
     }
-  }, [token]);
+  }, [token, toast, router]);
 
   useEffect(() => {
     checkLocalUser();
