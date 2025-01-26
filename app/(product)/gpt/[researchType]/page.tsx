@@ -96,7 +96,7 @@ const Page = () => {
         }, 12000); // Change step every 12 seconds
 
         const { data } = await axios.post(
-          'https://rolechain.org/analyzer/analyze',
+          'https://api.rolechain.org/analyzer/analyze',
           { prompt: query },
           {
             headers: {
@@ -394,7 +394,7 @@ const Page = () => {
         }
       } else {
         const { data } = await axios.post(
-          'https://rolechain.org/agents/chartmaster/analyze',
+          'https://api.rolechain.org/agents/chartmaster/analyze',
           { question: query },
           {
             headers: {

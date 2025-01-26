@@ -62,7 +62,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     setIsConnecting(true);
     router.push(
       //   // "https://research-ai-backend-production.up.railway.app/auth/google",
-      "https://rolechain.org/auth/google",
+      "https://api.rolechain.org/auth/google",
     );
     setIsConnecting(false);
   };
@@ -87,7 +87,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     // Fetch latest user data using the stored token
-    fetch("https://rolechain.org/auth/me", {
+    fetch("https://api.rolechain.org/auth/me", {
       headers: {
         Authorization: `Bearer ${localToken}`,
       },
@@ -117,7 +117,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setLocalToken("token", token);
       
-      fetch("https://rolechain.org/auth/me", {
+      fetch("https://api.rolechain.org/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
