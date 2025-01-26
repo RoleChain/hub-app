@@ -54,6 +54,7 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isShowScrollToBottom, setIsShowScrollToBottom] = useState(false);
   const [seoAnalysisStep, setSeoAnalysisStep] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const queryInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,119 @@ const Page = () => {
     try {
       const token = localStorage.getItem('token');
 
-      if (researchType === 'seo-analyzer') {
+      if (researchType === 'token-economics-expert') {
+        const formData = new FormData();
+        formData.append('prompt', query);
+        if (selectedFile) {
+          formData.append('files', selectedFile);
+        }
+
+        const { data } = await axios.post(
+          'https://api.rolechain.org/research/tokenomics',
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+
+        if (data.success) {
+          const recommendations = data.expert_recommendations;
+          const analysisContent = `
+            <div class="tokenomics-analysis-container space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Token Mechanics -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <h3 class="text-lg font-semibold mb-3">🔧 Token Mechanics</h3>
+                  <div class="space-y-2">
+                    ${recommendations.token_mechanics.map((rec: string) => `
+                      <div class="flex items-start gap-3">
+                        <span class="text-blue-500 text-lg">•</span>
+                        <span class="text-gray-800">${rec}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Supply Analysis -->
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <h3 class="text-lg font-semibold mb-3">📊 Supply Analysis</h3>
+                  <div class="space-y-2">
+                    ${recommendations.supply_analysis.map((rec: string) => `
+                      <div class="flex items-start gap-3">
+                        <span class="text-purple-500 text-lg">•</span>
+                        <span class="text-gray-800">${rec}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Incentive Structure -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                  <h3 class="text-lg font-semibold mb-3">🎯 Incentive Structure</h3>
+                  <div class="space-y-2">
+                    ${recommendations.incentive_structure.map((rec: string) => `
+                      <div class="flex items-start gap-3">
+                        <span class="text-green-500 text-lg">•</span>
+                        <span class="text-gray-800">${rec}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Value Accrual -->
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                  <h3 class="text-lg font-semibold mb-3">💰 Value Accrual</h3>
+                  <div class="space-y-2">
+                    ${recommendations.value_accrual.map((rec: string) => `
+                      <div class="flex items-start gap-3">
+                        <span class="text-orange-500 text-lg">•</span>
+                        <span class="text-gray-800">${rec}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Risks and Considerations -->
+              <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">⚠️ Risks and Considerations</h3>
+                <div class="space-y-2">
+                  ${recommendations.risks_and_considerations.map((rec: string) => `
+                    <div class="flex items-start gap-3">
+                      <span class="text-red-500 text-lg">•</span>
+                      <span class="text-gray-800">${rec}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- Sustainability Assessment -->
+              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">♻️ Sustainability Assessment</h3>
+                <p class="text-gray-800">${recommendations.sustainability_assessment}</p>
+              </div>
+
+              <!-- Expert Insights -->
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">💡 Expert Insights</h3>
+                <p class="text-gray-800">${recommendations.expert_insights}</p>
+              </div>
+            </div>
+          `;
+
+          setMessages(prev => [
+            ...prev,
+            {
+              messageId: v4(),
+              role: "assistant",
+              content: analysisContent,
+            },
+          ]);
+        }
+      } else if (researchType === 'seo-analyzer') {
         // Show analysis steps
         const steps = [
           'Fetching website content...',
@@ -541,8 +654,17 @@ const Page = () => {
       setIsLoading(false);
       queryInputRef.current?.focus();
       setQuery("");
+      setSelectedFile(null);
     }
   };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setQuery("Please analyze the tokenomics in the uploaded file");
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -609,11 +731,44 @@ const Page = () => {
                       )}
                     </>
                   ) : (
-                    researchType === 'seo-analyzer' ? <div className="max flex flex-col gap-4">
-                      <div
-                        className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
-                        dangerouslySetInnerHTML={{ __html: message.content }}
-                      />
+                    <div className="max flex flex-col gap-4">
+                      {researchType === 'token-economics-expert' ? (
+                        // Tokenomics Analysis Rendering
+                        <div
+                          className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
+                          dangerouslySetInnerHTML={{ 
+                            __html: typeof message.content === 'string' ? message.content : ''
+                          }}
+                        />
+                      ) : researchType === 'seo-analyzer' ? (
+                        // SEO Analysis Rendering
+                        <div
+                          className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
+                          dangerouslySetInnerHTML={{ 
+                            __html: typeof message.content === 'string' ? message.content : ''
+                          }}
+                        />
+                      ) : message.renderedContent ? (
+                        // Chart Analysis with TradingView
+                        <div
+                          className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
+                          dangerouslySetInnerHTML={{ 
+                            __html: message.renderedContent 
+                          }}
+                        />
+                      ) : (
+                        // Fallback for plain markdown content
+                        <Markdown
+                          className={cn(
+                            "prose max-w-[80%] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0",
+                            "break-words text-sm font-medium text-black dark:text-white md:text-base",
+                          )}
+                        >
+                          {message.content}
+                        </Markdown>
+                      )}
+                      
+                      {/* Common Actions for all types */}
                       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 lg:mr-24">
                         <CopyAction report={message.content} />
                         <div className="flex gap-2">
@@ -625,25 +780,7 @@ const Page = () => {
                           </button>
                         </div>
                       </div>
-                    </div>  :
-
-                      message.renderedContent ? (
-                        <div className="flex flex-col gap-4 w-full">
-                          <div
-                            className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-bold prose-strong:font-bold"
-                            dangerouslySetInnerHTML={{ __html: message.renderedContent }}
-                          />
-                        </div>
-                      ) : (
-                        <Markdown
-                          className={cn(
-                            "prose max-w-[80%] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0",
-                            "break-words text-sm font-medium text-black dark:text-white md:text-base",
-                          )}
-                        >
-                          {message.content}
-                        </Markdown>
-                      )
+                    </div>
                   )}
                   <div
                     ref={messagesEndRef}
@@ -670,16 +807,20 @@ const Page = () => {
             <h1 className="text-3xl font-bold mb-3">
               {researchType === 'seo-analyzer'
                 ? 'SEO Analysis for the digital age'
+                : researchType === 'token-economics-expert'
+                ? 'Expert Token Economics Analysis'
                 : 'Research for the crypto intelligence age'}
             </h1>
             <p className="text-gray-600 mb-8">
               {researchType === 'seo-analyzer'
                 ? 'Analyze your website SEO, get actionable insights, and improve your search rankings.'
+                : researchType === 'token-economics-expert'
+                ? 'Get comprehensive tokenomics analysis, expert recommendations, and detailed insights for any cryptocurrency project.'
                 : 'Automate market analysis, price action research, and technical indicators for any cryptocurrency.'}
             </p>
 
             <div className="w-full space-y-4">
-              {researchType !== 'seo-analyzer' && (
+              {researchType !== 'seo-analyzer' && researchType !== 'token-economics-expert' && (
                 <>
                   <div className="flex items-center gap-2 mb-2">
                     <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
@@ -721,12 +862,47 @@ const Page = () => {
         {user ? (
           <div className="sticky bottom-0 mt-auto flex gap-4 py-5">
             <div className="relative flex h-full w-full flex-col rounded-[12px] border border-[#ECECEC] bg-white outline-[#E056B8] focus-within:outline">
+              {researchType === 'token-economics-expert' && (
+                <label className="absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer">
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,image/*"
+                    onChange={handleFileUpload}
+                    disabled={isLoading}
+                  />
+                  <svg 
+                    className="w-5 h-5 text-gray-400 hover:text-gray-600"
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" 
+                    />
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 11v6m3-3h-6" 
+                    />
+                  </svg>
+                </label>
+              )}
               <input
                 ref={queryInputRef}
                 autoFocus
                 type="text"
-                placeholder="Start your research"
-                className="h-full w-full border-none bg-transparent py-2 pe-16 ps-4 focus-within:outline-none disabled:cursor-no-drop"
+                placeholder={researchType === 'token-economics-expert' 
+                  ? "Analyze tokenomics or upload a file" 
+                  : "Start your research"}
+                className={cn(
+                  "h-full w-full border-none bg-transparent py-2 pe-16 focus-within:outline-none disabled:cursor-no-drop",
+                  researchType === 'token-economics-expert' ? "ps-12" : "ps-4"
+                )}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDownCapture={(e) => {

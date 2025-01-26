@@ -176,6 +176,17 @@ export default function Nav() {
               >
                 Crypto Analyzer
               </Link>
+              <Link
+                href="/gpt/token-economics-expert"
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
+                  segments.includes("gpt") && segments.includes("token-economics-expert")
+                    ? "border-purple-200 bg-purple-50 text-purple-900"
+                    : null
+                )}
+              >
+                Token Economics Expert
+              </Link>
             </>
           )}
           <Link
