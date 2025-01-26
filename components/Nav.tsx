@@ -14,7 +14,7 @@ import { HistoryIcon, LogOutIcon, PlusIcon, ChevronDown, Bot } from "lucide-reac
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
-const BASE_URL = 'https://api.rolechain.org';
+const BASE_URL = 'https://rolechain.org';
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');
@@ -42,6 +42,7 @@ export default function Nav() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { toast } = useToast();
   const [isAgentsOpen, setIsAgentsOpen] = useState(false);
+  const [isGPTOpen, setIsGPTOpen] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoadingAgents, setIsLoadingAgents] = useState(false);
 
@@ -127,23 +128,56 @@ export default function Nav() {
               {agent.name}
             </Link>
           ))}
-          <Link
-            href="/chat"
-            className={cn(
-              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-              segments.includes("reports")
-                ? "border-purple-200 bg-purple-50 text-purple-900"
-                : null,
-            )}
-          >
-            <Image
-              src={ChatIcon}
-              alt=""
-              width="24"
-              height="24"
-            />
-            <span className="inline-block">Chat</span>
-          </Link>
+          {user && (
+            <button
+              onClick={() => setIsGPTOpen(!isGPTOpen)}
+              className={cn(
+                "flex w-full items-center justify-between gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
+                isGPTOpen ? "border-purple-200 bg-purple-50 text-purple-900" : null
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Image 
+                  src={ChatIcon}
+                  alt="Chat"
+                  width={20}
+                  height={20}
+                />
+                <span className="inline-block">All GPT</span>
+              </div>
+              <ChevronDown
+                className={cn("transition-transform", isGPTOpen && "rotate-180")}
+                size={20}
+                stroke="#667085"
+              />
+            </button>
+          )}
+          {isGPTOpen && (
+            <>
+              <Link
+                href="/gpt/seo-analyzer"
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
+                  segments.includes("gpt") && segments.includes("seo-analyzer")
+                    ? "border-purple-200 bg-purple-50 text-purple-900"
+                    : null
+                )}
+              >
+                SEO Analyzer
+              </Link>
+              <Link
+                href="/gpt/crypto-analyzer"
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
+                  segments.includes("gpt") && segments.includes("crypto-analyzer")
+                    ? "border-purple-200 bg-purple-50 text-purple-900"
+                    : null
+                )}
+              >
+                Crypto Analyzer
+              </Link>
+            </>
+          )}
           <Link
             href="/chats"
             className={cn(
