@@ -59,6 +59,12 @@ const AuthDialogContent = () => {
           height={24}
         />
       </button>
+      {/* <button
+        onClick={() => setShowWaitingList(true)}
+        className="your-button-class"
+      >
+        Open Waiting List
+      </button> */}
       <WaitingListPopup isOpen={showWaitingList} onClose={() => setShowWaitingList(false)} /> 
     </div>
   );

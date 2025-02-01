@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-
+import logo from "@/assets/icons/logo.svg"
 interface WaitingListPopupProps {
   isOpen: boolean
   onClose: () => void
@@ -13,7 +13,7 @@ export default function WaitingListPopup({ isOpen, onClose }: WaitingListPopupPr
       <DialogContent className="sm:max-w-md border-purple-200 bg-[radial-gradient(277.58%_98.91%_at_50%_0%,_rgba(171,_206,_30,_0.20)_0%,_rgba(255,_255,_255,_0.00)_100%),_#FFF]">
         <div className="flex flex-col items-center space-y-4 p-6">
           <Image
-            src="/assets/icons/logo.svg"
+            src={logo}
             alt="RolechAIn Logo"
             width={48}
             height={48}
