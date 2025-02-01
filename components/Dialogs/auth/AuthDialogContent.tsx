@@ -10,13 +10,20 @@ import WaitingListPopup from "@/components/waitlist-form";
 const AuthDialogContent = () => {
   const router = useRouter();
   const [referralCode, setReferralCode] = useState("");
-  const { isConnecting, signIn } = useAuth();
+  const { isConnecting, signIn,user } = useAuth();
   const [showWaitingList, setShowWaitingList] = useState(false)
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     // Client-side-only code
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Client-side-only code
+    if (user) {
+      // Show the popup when the user is logged in
+      setShowWaitingList(true);
     }
-  }, []);
+  }, [user]);
 
   const signUp = async () => {
     // Implement your signup logic here
@@ -27,12 +34,10 @@ const AuthDialogContent = () => {
 
   const handleSignup = async () => {
     try {
-      // Assume signUp is a function that handles user signup
-      await signUp();
-      // Redirect to the approval page after successful signup
-      // router.push('/approval');
+      await signIn(); // Wait for the sign-in process to complete
+     
     } catch (error) {
-      console.error("Signup failed:", error);
+      console.error("Sign-in failed:", error);
     }
   };
 
@@ -41,8 +46,8 @@ const AuthDialogContent = () => {
       
       <button
         className="flex items-center justify-between gap-4 rounded-[2px] border bg-white px-2.5 py-2.5 text-xs font-semibold uppercase"
-        onClick={() => signIn()}
-        // onClick={handleSignup}
+        // onClick={() => signIn()}
+        onClick={handleSignup}
         disabled={isConnecting}
       >
         <span>Continue with google</span>
