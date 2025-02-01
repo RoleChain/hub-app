@@ -5,12 +5,13 @@ import TwitterIcon from "@/assets/icons/twitter_icon.svg";
 import { useState, useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
 import { useRouter } from 'next/navigation';
+import WaitingListPopup from "@/components/waitlist-form";
 
 const AuthDialogContent = () => {
   const router = useRouter();
   const [referralCode, setReferralCode] = useState("");
   const { isConnecting, signIn } = useAuth();
-
+  const [showWaitingList, setShowWaitingList] = useState(false)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Client-side-only code
@@ -21,6 +22,7 @@ const AuthDialogContent = () => {
     // Implement your signup logic here
     // For example, make an API call to register the user
     console.log("User signed up successfully");
+    setShowWaitingList(true)
   };
 
   const handleSignup = async () => {
@@ -28,7 +30,7 @@ const AuthDialogContent = () => {
       // Assume signUp is a function that handles user signup
       await signUp();
       // Redirect to the approval page after successful signup
-      router.push('/approval');
+      // router.push('/approval');
     } catch (error) {
       console.error("Signup failed:", error);
     }
@@ -40,6 +42,7 @@ const AuthDialogContent = () => {
       <button
         className="flex items-center justify-between gap-4 rounded-[2px] border bg-white px-2.5 py-2.5 text-xs font-semibold uppercase"
         onClick={() => signIn()}
+        // onClick={handleSignup}
         disabled={isConnecting}
       >
         <span>Continue with google</span>
@@ -51,7 +54,7 @@ const AuthDialogContent = () => {
           height={24}
         />
       </button>
-     
+      <WaitingListPopup isOpen={showWaitingList} onClose={() => setShowWaitingList(false)} /> 
     </div>
   );
 };
