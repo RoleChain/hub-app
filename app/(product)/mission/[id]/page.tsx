@@ -25,7 +25,7 @@ export default function Page() {
   const fetchMissionInfo = async () => {
     try {
       const { data } = await axios.get<{ mission: Mission }>(
-        "http://localhost:3002/mission/" +
+        "https://api.rolechain.org/mission/" +
           missionId,
       );
       console.log(data);

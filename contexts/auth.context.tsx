@@ -51,6 +51,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       // @ts-expect-error jwt
       email: decodedToken.email,
       // @ts-expect-error jwt
+      displayName: decodedToken.displayName,
+      // @ts-expect-error jwt
       first_name: decodedToken.first_name,
       // @ts-expect-error jwt
       last_name: decodedToken.last_name,
@@ -65,8 +67,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async () => {
     setIsConnecting(true);
     router.push(
-      //   // "http://localhost:3002/auth/google",
-      "http://localhost:3002/auth/google",
+      //   // "https://api.rolechain.org/auth/google",
+      "https://api.rolechain.org/auth/google",
     );
     setIsConnecting(false);
   };
@@ -74,7 +76,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setIsConnecting(true);
     await fetch(
-      "http://localhost:3002/auth/logout",
+      "https://api.rolechain.org/auth/logout",
     );
     setUser(null);
     clearLocalToken();
@@ -91,7 +93,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     // Fetch latest user data using the stored token
-    fetch("http://localhost:3002/auth/me", {
+    fetch("https://api.rolechain.org/auth/me", {
       headers: {
         Authorization: `Bearer ${localToken}`,
       },
@@ -121,7 +123,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setLocalToken("token", token);
       
-      fetch("http://localhost:3002/auth/me", {
+      fetch("https://api.rolechain.org/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

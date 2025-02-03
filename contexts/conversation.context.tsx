@@ -44,7 +44,7 @@ const ConversationProvider = ({ children }: { children: React.ReactNode }) => {
     useState<TMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const BASE_URL = "http://localhost:3002";
+  const BASE_URL = "https://api.rolechain.org";
   const fetchConversations = async () => {
     setIsLoading(true);
     try {

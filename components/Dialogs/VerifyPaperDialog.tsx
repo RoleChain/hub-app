@@ -25,7 +25,7 @@ export function VerifyPaperDialog({
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:3002/api/research/doi",
+        "https://api.rolechain.org/api/research/doi",
         { doi: publicationDoi },
         { withCredentials: true },
       );

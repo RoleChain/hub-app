@@ -34,7 +34,7 @@ const Footer = () => {
       // );
       // const token = getLocalToken();
       const { data } = await axios.post<{ message: string; mission: Mission }>(
-        "http://localhost:3002/mission/" +
+        "https://api.rolechain.org/mission/" +
           missionId +
           "/contribute",
         { doi: contribDoi },

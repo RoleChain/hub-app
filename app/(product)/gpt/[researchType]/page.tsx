@@ -79,7 +79,7 @@ const Page = () => {
 
       if (researchType === 'research-assistant') {
         const { data } = await axios.post(
-          'http://localhost:3002/news/smart-search',
+          'https://api.rolechain.org/news/smart-search',
           { query },
           {
             headers: {
@@ -146,7 +146,7 @@ const Page = () => {
         }
 
         const { data } = await axios.post(
-          'http://localhost:3002/research/tokenomics',
+          'https://api.rolechain.org/research/tokenomics',
           formData,
           {
             headers: {
@@ -270,7 +270,7 @@ const Page = () => {
         }, 12000); // Change step every 12 seconds
 
         const { data } = await axios.post(
-          'http://localhost:3002/analyzer/analyze',
+          'https://api.rolechain.org/analyzer/analyze',
           { prompt: query },
           {
             headers: {
@@ -568,7 +568,7 @@ const Page = () => {
         }
       } else {
         const { data } = await axios.post(
-          'http://localhost:3002/agents/chartmaster/analyze',
+          'https://api.rolechain.org/agents/chartmaster/analyze',
           { question: query },
           {
             headers: {
