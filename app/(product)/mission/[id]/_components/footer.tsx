@@ -34,7 +34,7 @@ const Footer = () => {
       // );
       // const token = getLocalToken();
       const { data } = await axios.post<{ message: string; mission: Mission }>(
-        "https://research-ai-backend-production.up.railway.app/mission/" +
+        "http://localhost:3002/mission/" +
           missionId +
           "/contribute",
         { doi: contribDoi },

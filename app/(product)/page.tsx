@@ -35,6 +35,7 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
+import { GatedDialog } from "@/components/Dialogs/GatedDailog";
 
 const CHART_COLORS = {
   primary: '#EC4899',    // Pink-500
@@ -66,7 +67,7 @@ interface Agent {
   };
 }
 
-const BASE_URL = 'https://api.rolechain.org';
+const BASE_URL = 'http://localhost:3002';
 
 // Update fetchWithAuth utility function
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
@@ -932,14 +933,13 @@ const DUMMY_DASHBOARD_STATS: DashboardStats = {
 export default function Page() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [isCreateAgent, setIsCreateAgent] = useState(false);
-  const [isViewLogs, setIsViewLogs] = useState(false);
   const [tasks, setTasks] = useState<TaskGroups>({});
   const [activeTab, setActiveTab] = useState("overview");
   const [logs, setLogs] = useState<any[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState("all");
   const router = useRouter();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isGatedDialogOpen, setIsGatedDialogOpen] = useState(false);
   const { user } = useAuth();
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -948,9 +948,14 @@ export default function Page() {
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
 
   useEffect(() => {
+    console.log(user)
     if (!user) {
       setIsAuthDialogOpen(true);
     }
+    if (!user?.isGated) {
+      setIsGatedDialogOpen(true);
+    }
+
   }, [user]);
 
 
@@ -1455,6 +1460,10 @@ export default function Page() {
       <AuthDialog
         isOpen={isAuthDialogOpen}
         toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
+      />
+       <GatedDialog
+        isOpen={isGatedDialogOpen}
+        toggleIsOpen={() => setIsGatedDialogOpen((prev) => !prev)}
       />
     </section>
   );

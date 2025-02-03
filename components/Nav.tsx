@@ -14,7 +14,7 @@ import { HistoryIcon, LogOutIcon, PlusIcon, ChevronDown, Bot } from "lucide-reac
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
-const BASE_URL = 'https://api.rolechain.org';
+const BASE_URL = 'http://localhost:3002';
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');
@@ -154,6 +154,17 @@ export default function Nav() {
           )}
           {isGPTOpen && (
             <>
+            <Link
+                href="/gpt/research-assistant"
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
+                  segments.includes("gpt") && segments.includes("seo-analyzer")
+                    ? "border-purple-200 bg-purple-50 text-purple-900"
+                    : null
+                )}
+              >
+                Research Assistant
+              </Link>
               <Link
                 href="/gpt/seo-analyzer"
                 className={cn(

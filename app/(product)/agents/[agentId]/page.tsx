@@ -75,7 +75,7 @@ interface PlatformConfig {
   botBio: string;
 }
 
-const BASE_URL = 'https://api.rolechain.org';
+const BASE_URL = 'http://localhost:3002';
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token');

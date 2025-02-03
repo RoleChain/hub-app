@@ -25,7 +25,7 @@ export function VerifyPaperDialog({
     setIsLoading(true);
     try {
       const { data } = await axios.post(
-        "https://research-ai-backend-production.up.railway.app/api/research/doi",
+        "http://localhost:3002/api/research/doi",
         { doi: publicationDoi },
         { withCredentials: true },
       );

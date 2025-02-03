@@ -7,10 +7,12 @@ import { clearLocalToken, getAccessToken, setLocalToken } from "@/lib/utils";
 
 export type TUser = {
   id: string;
+  displayName: string;
   first_name: string;
   last_name: string;
   email: string;
   picture: string;
+  isGated: boolean;
   stats?: {
     contributions: number;
     reaiEarned: number;
@@ -55,14 +57,16 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       // @ts-expect-error jwt
       picture: decodedToken.picture,
       // @ts-expect-error jwt
+      isGated: decodedToken.isGated,
+      // @ts-expect-error jwt
       tokenExpired: decodedToken.exp * 1000 < Date.now(),
     };
   };
   const signIn = async () => {
     setIsConnecting(true);
     router.push(
-      //   // "https://research-ai-backend-production.up.railway.app/auth/google",
-      "https://api.rolechain.org/auth/google",
+      //   // "http://localhost:3002/auth/google",
+      "http://localhost:3002/auth/google",
     );
     setIsConnecting(false);
   };
@@ -70,7 +74,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setIsConnecting(true);
     await fetch(
-      "https://research-ai-backend-production.up.railway.app/auth/logout",
+      "http://localhost:3002/auth/logout",
     );
     setUser(null);
     clearLocalToken();
@@ -87,7 +91,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     // Fetch latest user data using the stored token
-    fetch("https://api.rolechain.org/auth/me", {
+    fetch("http://localhost:3002/auth/me", {
       headers: {
         Authorization: `Bearer ${localToken}`,
       },
@@ -117,7 +121,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       setLocalToken("token", token);
       
-      fetch("https://api.rolechain.org/auth/me", {
+      fetch("http://localhost:3002/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
