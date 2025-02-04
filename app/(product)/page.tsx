@@ -951,9 +951,10 @@ export default function Page() {
     console.log(user)
     if (!user) {
       setIsAuthDialogOpen(true);
-    }
-    if (!user?.isGated) {
-      setIsGatedDialogOpen(true);
+    }else{
+      if (!user?.isGated) {
+        setIsGatedDialogOpen(true);
+      }
     }
 
   }, [user]);
