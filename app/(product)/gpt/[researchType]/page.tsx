@@ -99,19 +99,16 @@ const Page = () => {
               </div>
 
               <!-- Search Results -->
-              ${data.rawData?.searchResults?.searchResults?.newsResults ? `
+              ${data.rawData?.searchResults?.[0]?.results?.organicResults ? `
                 <div class="mt-8">
-                  <h2 class="text-xl font-bold mb-4">News Sources</h2>
+                  <h2 class="text-xl font-bold mb-4">Sources</h2>
                   <div class="grid gap-4">
-                    ${data.rawData.searchResults.searchResults.newsResults.map((result: any, index: number) => `
+                    ${data.rawData.searchResults[0].results.organicResults.map((result: any) => `
                       <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
                         <a href="${result.link}" target="_blank" rel="noopener noreferrer" class="block">
                           <h3 class="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2">${result.title}</h3>
                           <p class="text-gray-600 text-sm mb-2">${result.snippet}</p>
-                          <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <span class="font-medium">${result.source}</span>
-                            ${result.timestamp ? `<span>•</span><span>${result.timestamp}</span>` : ''}
-                          </div>
+                          ${result.date ? `<div class="text-sm text-gray-500">${result.date}</div>` : ''}
                         </a>
                       </div>
                     `).join('')}
@@ -119,10 +116,10 @@ const Page = () => {
                 </div>
               ` : ''}
 
-              ${data.rawData?.searchResults?.searchResults?.metadata ? `
+              ${data.rawData?.searchResults?.[0]?.results?.metadata ? `
                 <div class="text-sm text-gray-500 mt-4">
-                  ${data.rawData.searchResults.searchResults.metadata.totalResults} 
-                  (${data.rawData.searchResults.searchResults.metadata.searchTime})
+                  ${data.rawData.searchResults[0].results.metadata.totalResults} 
+                  (${data.rawData.searchResults[0].results.metadata.searchTime})
                 </div>
               ` : ''}
             </div>
