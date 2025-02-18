@@ -44,7 +44,7 @@ const ConversationProvider = ({ children }: { children: React.ReactNode }) => {
     useState<TMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const BASE_URL = "https://research-ai-backend-production.up.railway.app";
+  const BASE_URL = "https://api.rolechain.org";
   const fetchConversations = async () => {
     setIsLoading(true);
     try {

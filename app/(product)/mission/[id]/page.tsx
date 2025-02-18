@@ -25,7 +25,7 @@ export default function Page() {
   const fetchMissionInfo = async () => {
     try {
       const { data } = await axios.get<{ mission: Mission }>(
-        "https://research-ai-backend-production.up.railway.app/mission/" +
+        "https://api.rolechain.org/mission/" +
           missionId,
       );
       console.log(data);

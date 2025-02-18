@@ -7,10 +7,12 @@ import { clearLocalToken, getAccessToken, setLocalToken } from "@/lib/utils";
 
 export type TUser = {
   id: string;
+  displayName: string;
   first_name: string;
   last_name: string;
   email: string;
   picture: string;
+  isGated: boolean;
   stats?: {
     contributions: number;
     reaiEarned: number;
@@ -49,11 +51,15 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       // @ts-expect-error jwt
       email: decodedToken.email,
       // @ts-expect-error jwt
+      displayName: decodedToken.displayName,
+      // @ts-expect-error jwt
       first_name: decodedToken.first_name,
       // @ts-expect-error jwt
       last_name: decodedToken.last_name,
       // @ts-expect-error jwt
       picture: decodedToken.picture,
+      // @ts-expect-error jwt
+      isGated: decodedToken.isGated,
       // @ts-expect-error jwt
       tokenExpired: decodedToken.exp * 1000 < Date.now(),
     };
@@ -61,7 +67,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async () => {
     setIsConnecting(true);
     router.push(
-      //   // "https://research-ai-backend-production.up.railway.app/auth/google",
+      //   // "https://api.rolechain.org/auth/google",
       "https://api.rolechain.org/auth/google",
     );
     setIsConnecting(false);
@@ -70,7 +76,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setIsConnecting(true);
     await fetch(
-      "https://research-ai-backend-production.up.railway.app/auth/logout",
+      "https://api.rolechain.org/auth/logout",
     );
     setUser(null);
     clearLocalToken();

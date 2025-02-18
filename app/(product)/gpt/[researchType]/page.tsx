@@ -77,7 +77,65 @@ const Page = () => {
     try {
       const token = localStorage.getItem('token');
 
-      if (researchType === 'token-economics-expert') {
+      if (researchType === 'research-assistant') {
+        const { data } = await axios.post(
+          'https://api.rolechain.org/news/smart-search',
+          { query },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (data.markdown) {
+          // Create a formatted news content with search results
+          const newsContent = `
+            <div class="news-analysis-container space-y-6">
+              <!-- Main Analysis -->
+              <div class="prose max-w-none">
+                ${marked(data.markdown)}
+              </div>
+
+              <!-- Search Results -->
+              ${data.rawData?.searchResults?.[0]?.results?.organicResults ? `
+                <div class="mt-8">
+                  <h2 class="text-xl font-bold mb-4">Sources</h2>
+                  <div class="grid gap-4">
+                    ${data.rawData.searchResults[0].results.organicResults.map((result: any) => `
+                      <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                        <a href="${result.link}" target="_blank" rel="noopener noreferrer" class="block">
+                          <h3 class="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-2">${result.title}</h3>
+                          <p class="text-gray-600 text-sm mb-2">${result.snippet}</p>
+                          ${result.date ? `<div class="text-sm text-gray-500">${result.date}</div>` : ''}
+                        </a>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${data.rawData?.searchResults?.[0]?.results?.metadata ? `
+                <div class="text-sm text-gray-500 mt-4">
+                  ${data.rawData.searchResults[0].results.metadata.totalResults} 
+                  (${data.rawData.searchResults[0].results.metadata.searchTime})
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          setMessages(prev => [
+            ...prev,
+            {
+              messageId: v4(),
+              role: "assistant",
+              content: data.markdown,
+              renderedContent: newsContent
+            },
+          ]);
+        }
+      } else if (researchType === 'token-economics-expert') {
         const formData = new FormData();
         formData.append('prompt', query);
         if (selectedFile) {
@@ -282,7 +340,7 @@ const Page = () => {
 
                   ${data.summary?.critical_issues ? `
                     <div class="mt-8">
-                      <h2 class="text-xl font-bold mb-4">🚨 Critical Issues</h2>
+                      <h2 class="text-xl font-bold mb-4">Critical Issues</h2>
                       <div class="bg-red-50 border border-red-200 rounded-lg p-6">
                         ${data.summary.critical_issues.map((issue: string) => `
                           <div class="flex items-start gap-3 mb-3">
@@ -804,57 +862,47 @@ const Page = () => {
           </div>
         ) : (
           <div className="flex flex-col w-full max-w-3xl mx-auto pt-8 pb-12">
-            <h1 className="text-3xl font-bold mb-3">
-              {researchType === 'seo-analyzer'
-                ? 'SEO Analysis for the digital age'
-                : researchType === 'token-economics-expert'
-                ? 'Expert Token Economics Analysis'
-                : 'Research for the crypto intelligence age'}
-            </h1>
-            <p className="text-gray-600 mb-8">
-              {researchType === 'seo-analyzer'
-                ? 'Analyze your website SEO, get actionable insights, and improve your search rankings.'
-                : researchType === 'token-economics-expert'
-                ? 'Get comprehensive tokenomics analysis, expert recommendations, and detailed insights for any cryptocurrency project.'
-                : 'Automate market analysis, price action research, and technical indicators for any cryptocurrency.'}
-            </p>
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">
+                Hi {user?.displayName || 'there'} 👋
+              </h1>
+              <p className="text-gray-600">
+                I'm your AI Research Assistant. I can help you explore any topic in depth, from academic research to market analysis. What would you like to learn about today?
+              </p>
+            </div>
 
             <div className="w-full space-y-4">
-              {researchType !== 'seo-analyzer' && researchType !== 'token-economics-expert' && (
-                <>
-                  <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none" />
-                    </svg>
-                    <h2 className="text-base text-gray-600">Popular Studies</h2>
-                  </div>
-                  <p className="text-sm text-gray-500">Use these topics to get started</p>
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none" />
+                </svg>
+                <h2 className="text-base text-gray-600">Popular Research Topics</h2>
+              </div>
+              <p className="text-sm text-gray-500">Select a topic or ask your own research question</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      "Analyze Bitcoin (BTC) price action and market structure",
-                      "Analyze Ethereum (ETH) technical indicators and trends",
-                      "Analyze Solana (SOL) performance and momentum",
-                      "Analyze TON network growth and price targets",
-                      "Analyze BNB Chain ecosystem and metrics",
-                      "Analyze Cardano (ADA) development activity",
-                    ].map((query) => (
-                      <button
-                        key={query}
-                        onClick={() => handleQuery(query)}
-                        className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
-                      >
-                        <span className="mr-2">{query}</span>
-                        <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
-                          <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  "What are the key differences between Web2 and Web3 technology?",
+                  "Explain the concept of Zero-Knowledge Proofs in simple terms",
+                  "What are the environmental impacts of blockchain technology?",
+                  "How does artificial intelligence impact modern healthcare?",
+                  "What are the main challenges in quantum computing?",
+                  "Explain the significance of smart contracts in DeFi",
+                ].map((query) => (
+                  <button
+                    key={query}
+                    onClick={() => handleQuery(query)}
+                    className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
+                  >
+                    <span className="mr-2">{query}</span>
+                    <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
+                      <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}

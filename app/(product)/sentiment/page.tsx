@@ -30,8 +30,10 @@ import {
   TableCell,
 } from "@/components/ui/table"
 import { Bell, AlertTriangle, CheckCircle, Users } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TelegramDialog } from '@/components/Dialogs/TelegramDialog'
+import { GatedDialog } from '@/components/Dialogs/GatedDailog'
+import useAuth from "@/hooks/useAuth"
 
 interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
   data: any
@@ -291,7 +293,14 @@ function LiveMessagesChart({ data }: ChartProps) {
 
 export default function CommunityDashboard() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(true)
-  
+  const [isGatedDialogOpen, setIsGatedDialogOpen] = useState(true)
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (!user?.isGated) {
+      setIsGatedDialogOpen(true)
+    }
+  }, [user])
   // Enhanced mock data
   const communityStats = [
     { 
