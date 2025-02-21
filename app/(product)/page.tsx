@@ -36,6 +36,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { GatedDialog } from "@/components/Dialogs/GatedDailog";
+import Banner from "@/components/Banner";
 
 const CHART_COLORS = {
   primary: '#EC4899',    // Pink-500
@@ -1292,6 +1293,7 @@ export default function Page() {
 
   return (
     <section className="mt-8">
+      <Banner />
       <div className="flex items-center justify-between mb-8">
         <div className="flex select-none flex-col gap-1">
           <h2 className="text-3xl font-semibold leading-[38px] text-black">
@@ -1458,10 +1460,10 @@ export default function Page() {
         </TabsContent>
       </Tabs>
       
-      <AuthDialog
+      {/* <AuthDialog
         isOpen={isAuthDialogOpen}
         toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
-      />
+      /> */}
        <GatedDialog
         isOpen={isGatedDialogOpen}
         toggleIsOpen={() => setIsGatedDialogOpen((prev) => !prev)}

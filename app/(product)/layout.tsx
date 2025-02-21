@@ -61,7 +61,7 @@ export default function DashboardLayout({
             "px-4 pt-16 md:pt-0 md:pl-[312px]"
           )}>
             <div className="fixed inset-0 translate-x-[20%] overflow-clip pointer-events-none">
-              <Image
+              {/* <Image
                 src={bgGrid}
                 alt="bg image"
                 aria-hidden
@@ -70,7 +70,7 @@ export default function DashboardLayout({
                   "object-fill mix-blend-lighten",
                   "[mask-image:_radial-gradient(circle_600px_at_50%_30%,_black,_transparent_90%)]"
                 )}
-              />
+              /> */}
             </div>
             <main className="relative isolate z-[0] grid flex-1 gap-2 md:gap-4 lg:px-9 lg:pt-10">
               {children}
