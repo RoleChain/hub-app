@@ -756,7 +756,7 @@ const Page = () => {
   }, []);
 
   return (
-    <section className="relative flex flex-col gap-4 px-4 md:px-6">
+    <section className="relative flex flex-col gap-4 px-4 md:px-6 lg:mt-10">
       <div className="relative flex h-full w-full flex-col rounded-md bg-white pb-12 pl-4 md:pl-16 pt-6">
         {messages.length ? (
           <div className="w-full max-w-full md:max-w-[80%]">
@@ -907,7 +907,7 @@ const Page = () => {
           </div>
         )}
         {/* Footer */}
-        {user ? (
+        {/* {user ? ( */}
           <div className="sticky bottom-0 mt-auto flex gap-4 py-5">
             <div className="relative flex h-full w-full flex-col rounded-[12px] border border-[#ECECEC] bg-white outline-[#E056B8] focus-within:outline">
               {researchType === 'token-economics-expert' && (
@@ -994,7 +994,7 @@ const Page = () => {
               />
             </div>
           </div>
-        )}
+        {/* )} */}
       </div>
     </section>
   );

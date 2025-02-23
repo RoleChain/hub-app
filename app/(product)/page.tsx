@@ -37,6 +37,8 @@ import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { GatedDialog } from "@/components/Dialogs/GatedDailog";
 import Banner from "@/components/Banner";
+// import { AgentTemplateSection } from "@/components/AgentTemplate";
+
 
 const CHART_COLORS = {
   primary: '#EC4899',    // Pink-500
@@ -1293,8 +1295,10 @@ export default function Page() {
 
   return (
     <section className="mt-8">
+
       <Banner />
-      <div className="flex items-center justify-between mb-8">
+      {/* <AgentTemplateSection/> */}
+      {/* <div className="flex items-center justify-between mb-8">
         <div className="flex select-none flex-col gap-1">
           <h2 className="text-3xl font-semibold leading-[38px] text-black">
             Agent Dashboard
@@ -1458,7 +1462,7 @@ export default function Page() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
       
       {/* <AuthDialog
         isOpen={isAuthDialogOpen}

@@ -8,6 +8,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { ConversationProvider } from "@/contexts/conversation.context";
 import { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
+import Navbar from "@/components/Header";
+import Header from "@/components/Header";
 
 export default function DashboardLayout({
   children,
@@ -60,6 +62,7 @@ export default function DashboardLayout({
             "w-full transition-all duration-300",
             "px-4 pt-16 md:pt-0 md:pl-[312px]"
           )}>
+              <Header />
             <div className="fixed inset-0 translate-x-[20%] overflow-clip pointer-events-none">
               {/* <Image
                 src={bgGrid}
@@ -71,6 +74,7 @@ export default function DashboardLayout({
                   "[mask-image:_radial-gradient(circle_600px_at_50%_30%,_black,_transparent_90%)]"
                 )}
               /> */}
+            
             </div>
             <main className="relative isolate z-[0] grid flex-1 gap-2 md:gap-4 lg:px-9 lg:pt-10">
               {children}
