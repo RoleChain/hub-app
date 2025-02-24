@@ -867,43 +867,99 @@ const Page = () => {
                 Hi {user?.displayName || 'there'} 👋
               </h1>
               <p className="text-gray-600">
-                I'm your AI Research Assistant. I can help you explore any topic in depth, from academic research to market analysis. What would you like to learn about today?
+                {researchType === 'research-assistant' && "I'm your AI Research Assistant. I can help you explore any topic in depth, from academic research to market analysis. What would you like to learn about today?"}
+                {researchType === 'crypto-analyzer' && "I'm your Crypto Analysis Expert. I can help you analyze any cryptocurrency or token. What would you like to analyze today?"}
+                {researchType === 'seo-analyzer' && "I'm your SEO Analysis Expert. Enter a crypto website URL above and I'll provide a comprehensive SEO analysis with optimization recommendations."}
+                {researchType === 'token-economics-expert' && "I'm your Token Economics Expert. Upload a whitepaper or enter your questions about token economics above."}
               </p>
             </div>
 
-            <div className="w-full space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none" />
-                </svg>
-                <h2 className="text-base text-gray-600">Popular Research Topics</h2>
-              </div>
-              <p className="text-sm text-gray-500">Select a topic or ask your own research question</p>
+            {(researchType === 'research-assistant' || researchType === 'crypto-analyzer') && (
+              <div className="w-full space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none" />
+                  </svg>
+                  <h2 className="text-base text-gray-600">Popular Questions</h2>
+                </div>
+                <p className="text-sm text-gray-500">Select a question or ask your own</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  "What are the key differences between Web2 and Web3 technology?",
-                  "Explain the concept of Zero-Knowledge Proofs in simple terms",
-                  "What are the environmental impacts of blockchain technology?",
-                  "How does artificial intelligence impact modern healthcare?",
-                  "What are the main challenges in quantum computing?",
-                  "Explain the significance of smart contracts in DeFi",
-                ].map((query) => (
-                  <button
-                    key={query}
-                    onClick={() => handleQuery(query)}
-                    className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
-                  >
-                    <span className="mr-2">{query}</span>
-                    <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </span>
-                  </button>
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {researchType === 'research-assistant' ? [
+                    "What are the key differences between Web2 and Web3 technology?",
+                    "Explain the concept of Zero-Knowledge Proofs in simple terms",
+                    "What are the environmental impacts of blockchain technology?",
+                    "How does artificial intelligence impact modern healthcare?"
+                  ].map((query) => (
+                    <button
+                      key={query}
+                      onClick={() => handleQuery(query)}
+                      className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
+                    >
+                      <span className="mr-2">{query}</span>
+                      <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    </button>
+                  )) : [
+                    "Analyze $BTC price action and market sentiment",
+                    "What's the current market outlook for $ETH?",
+                    "Technical analysis for $SOL",
+                    "Analyze recent $DOGE price movements",
+                    "Market analysis for $XRP",
+                  ].map((query) => (
+                    <button
+                      key={query}
+                      onClick={() => handleQuery(query)}
+                      className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
+                    >
+                      <span className="mr-2">{query}</span>
+                      <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {researchType === 'seo-analyzer' && (
+              <div className="w-full space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-5 h-5 text-[#8B5CF6]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none" />
+                  </svg>
+                  <h2 className="text-base text-gray-600">Popular Crypto Website Analysis</h2>
+                </div>
+                <p className="text-sm text-gray-500">Select a website to analyze or enter your own</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    "Analyze SEO for https://uniswap.org",
+                    "Check SEO performance of https://aave.com",
+                    "SEO analysis for https://curve.fi",
+                    "Analyze https://compound.finance SEO metrics"
+                  ].map((query) => (
+                    <button
+                      key={query}
+                      onClick={() => handleQuery(query)}
+                      className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 group flex items-center justify-between"
+                    >
+                      <span className="mr-2">{query}</span>
+                      <span className="bg-[#8B5CF6] rounded-full p-1 group-hover:bg-[#7C3AED] transition-colors flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
         {/* Footer */}
