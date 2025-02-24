@@ -10,7 +10,7 @@ import useAuth from "@/hooks/useAuth";
 import PapersIcon from "./icons/papers";
 import ImgBlurTemp from "./icons/imgBlurTemp";
 import * as Avatar from "@radix-ui/react-avatar";
-import { HistoryIcon, LogOutIcon, PlusIcon, ChevronDown, Bot } from "lucide-react";
+import { Users, MessageSquare, UserCircle, Wrench, BarChart2, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
@@ -72,291 +72,137 @@ export default function Nav() {
   }, [isAgentsOpen, user]);
 
   return (
-    <aside
-      className={cn(
-        "fixed inset-y-0 left-0 z-10 box-border w-full flex-col bg-white shadow-inner shadow-[#ECECEC] flex",
-        "max-w-[312px]"
-      )}
-    >
-      <nav className="flex flex-col items-center pt-8">
-        <Link
-          className="ml-2 mr-auto w-fit px-4"
-          href="/"
-        >
+    <aside className="fixed inset-y-0 left-0 z-10 w-[280px] bg-white p-4 flex flex-col">
+      <nav className="flex flex-col h-full">
+        {/* Logo */}
+        <Link href="/" className="flex items-center mb-4">
           <Image
             src={Logo}
-            alt="Site Logo"
-            className="mt-12 md:mt-0"
+            alt="RolechAin"
+            className="h-8"
           />
         </Link>
-        {/* separator #1 */}
-        <div className="mx-auto my-6 h-[1px] w-[80%] border-t-[0.01em] border-[#444]" />
-        <div className="flex w-full flex-col gap-1 px-4">
-          {user && (
-            <button
-              onClick={() => setIsAgentsOpen(!isAgentsOpen)}
-              className={cn(
-                "flex w-full items-center justify-between gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-                isAgentsOpen ? "border-purple-200 bg-purple-50 text-purple-900" : null
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Bot 
-                  size={20}
-                  className="text-[#667085]" 
-                />
-                <span className="inline-block">All Agents</span>
-              </div>
-              <ChevronDown
-                className={cn("transition-transform", isAgentsOpen && "rotate-180")}
-                size={20}
-                stroke="#667085"
-              />
-            </button>
-          )}
-          {isAgentsOpen && agents.map((agent) => (
-            <Link
-              key={agent._id}
-              href={`/agents/${agent._id}`}
-              className={cn(
-                "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
-                segments.includes("agents") && segments.includes(agent._id)
-                  ? "border-purple-200 bg-purple-50 text-purple-900"
-                  : null
-              )}
-            >
-              {agent.name}
-            </Link>
-          ))}
-          {user && (
-            <button
-              onClick={() => setIsGPTOpen(!isGPTOpen)}
-              className={cn(
-                "flex w-full items-center justify-between gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-                isGPTOpen ? "border-purple-200 bg-purple-50 text-purple-900" : null
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Image 
-                  src={ChatIcon}
-                  alt="Chat"
-                  width={20}
-                  height={20}
-                />
-                <span className="inline-block">All GPT</span>
-              </div>
-              <ChevronDown
-                className={cn("transition-transform", isGPTOpen && "rotate-180")}
-                size={20}
-                stroke="#667085"
-              />
-            </button>
-          )}
-          {isGPTOpen && (
-            <>
-            <Link
-                href="/gpt/research-assistant"
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
-                  segments.includes("gpt") && segments.includes("seo-analyzer")
-                    ? "border-purple-200 bg-purple-50 text-purple-900"
-                    : null
-                )}
-              >
-                Research Assistant
-              </Link>
-              <Link
-                href="/gpt/seo-analyzer"
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
-                  segments.includes("gpt") && segments.includes("seo-analyzer")
-                    ? "border-purple-200 bg-purple-50 text-purple-900"
-                    : null
-                )}
-              >
-                SEO Analyzer
-              </Link>
-              <Link
-                href="/gpt/crypto-analyzer"
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
-                  segments.includes("gpt") && segments.includes("crypto-analyzer")
-                    ? "border-purple-200 bg-purple-50 text-purple-900"
-                    : null
-                )}
-              >
-                Crypto Analyzer
-              </Link>
-              <Link
-                href="/gpt/token-economics-expert"
-                className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 pl-8 text-sm text-[#344054] transition-colors hover:bg-purple-50",
-                  segments.includes("gpt") && segments.includes("token-economics-expert")
-                    ? "border-purple-200 bg-purple-50 text-purple-900"
-                    : null
-                )}
-              >
-                Token Economics Expert
-              </Link>
-            </>
-          )}
+
+        {/* Main Navigation */}
+        <div className="space-y-0.5">
           <Link
-            href="/chats"
-            className={cn(
-              "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-              segments.includes("chats")
-                ? "border-purple-200 bg-purple-50 text-purple-900"
-                : null,
-            )}
+            href="/get-started"
+            className="flex items-center w-full px-3 py-1.5 text-white rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
           >
-            <HistoryIcon stroke="#667085" />
-            <span className="inline-block">Chat History</span>
+            Get Started
           </Link>
-          {user && (
-            <Link
-              href="/agents/new"
-              className={cn(
-                "flex w-full items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 font-semibold text-[#344054] transition-colors",
-                segments.includes("agents") && segments.includes("new")
-                  ? "border-purple-200 bg-purple-50 text-purple-900"
-                  : null
-              )}
-            >
-              <PlusIcon stroke="#667085" />
-              <span className="inline-block">New Agent</span>
-            </Link>
-          )}
+          <Link
+            href="/settings"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+            </svg>
+            Settings
+          </Link>
+          <Link
+            href="/templates"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Templates
+          </Link>
         </div>
-      </nav>
-      {/* separator #2 */}
-      {/* <div className="mx-auto my-6 h-[1px] w-[80%] border-t-[0.5px] border-[#444]" />
-      {user && (
-        <div className="flex flex-col gap-2 px-8">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-[#344054]">
-              Research Drafts
-            </span>
-            <span className="cursor-pointer text-sm font-medium text-[#444] opacity-75 hover:underline">
-              View All
-            </span>
-          </div>
-          <div className="mt-1 flex select-none flex-col rounded-[10px] border bg-white p-3">
-            <div className="flex items-center gap-2">
-              <PapersIcon width={48} />
-              <span className="block text-sm font-medium text-[#444]">
-                Blockchain Technology and Intelligence Together
-              </span>
-            </div>
-            <span className="text-xs font-medium opacity-50">23 mins ago</span>
-          </div>
-          <div className="flex select-none flex-col rounded-[10px] border bg-white p-3">
-            <div className="flex items-center gap-2">
-              <PapersIcon width={48} />
-              <span className="block text-sm font-medium text-[#444]">
-                Blockchain Technology and Intelligence Together
-              </span>
-            </div>
-            <span className="text-xs font-medium opacity-50">23 mins ago</span>
-          </div>
+
+        {/* Workforce Section */}
+        <div className="space-y-0.5 mt-2">
+          <div className="px-3 text-xs font-medium text-gray-500">Workforce</div>
+          <Link
+            href="/agents"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Agents
+          </Link>
+          <Link
+            href="/gpt"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            GPT
+          </Link>
+          <Link
+            href="/role"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <UserCircle className="w-4 h-4 mr-2" />
+            Role
+          </Link>
+          <Link
+            href="/tools"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <Wrench className="w-4 h-4 mr-2" />
+            Tools
+          </Link>
         </div>
-      )} */}
-      {user ? (
-        <div className="mb-2 mt-auto w-full px-8 pb-5">
-          <span className="text-sm font-semibold text-[#344054]">My Stats</span>
-          <div className="mt-2 flex gap-1">
-            <div className="flex select-none flex-col rounded-[10px] border bg-white p-3">
-              <span className="text-sm font-medium tracking-tight text-[#444] opacity-75">
-                Contributions
-              </span>
-              <div className="flex items-center gap-1.5 md:mt-0 mt-4">
-                <PapersIcon
-                  width={16}
-                  height={16}
-                  className="text-black"
-                />
-                <span className="text-xl font-semibold">20</span>
+
+        {/* Monitor Section */}
+        <div className="space-y-0.5 mt-2">
+          <div className="px-3 text-xs font-medium text-gray-500">Monitor</div>
+          <Link
+            href="/analytics"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <BarChart2 className="w-4 h-4 mr-2" />
+            Analytics
+          </Link>
+          <Link
+            href="/activity"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <Activity className="w-4 h-4 mr-2" />
+            Activity Center
+          </Link>
+        </div>
+
+        {/* Stats Section - updated design */}
+        <div className="mt-auto pt-4 border-t border-gray-200">
+          <div className="px-3 text-xs font-medium text-gray-500 mb-2">My Stats</div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-3 bg-white rounded-xl border border-gray-100">
+              <div className="text-gray-600 text-sm mb-1">Credits</div>
+              <div className="text-2xl text-center font-semibold">20</div>
+            </div>
+            <div className="p-3 bg-white rounded-xl border border-gray-100">
+              <div className="text-gray-600 text-sm mb-1">Gems</div>
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                </svg>
+                <span className="text-2xl font-semibold">4200</span>
               </div>
             </div>
-            <div className="flex select-none flex-col rounded-[10px] border bg-white p-3">
-              <span className="text-sm font-medium tracking-tight text-[#444] opacity-75">
-                $ROAI Earned
-              </span>
-              <div className="flex items-center gap-1.5">
-                <ImgBlurTemp
-                  width={20}
-                  height={20}
-                />
-                <span className="text-xl font-semibold">4200</span>
-              </div>
-            </div>
           </div>
-          <div className="mt-3 flex justify-between rounded-lg border border-purple-200 bg-purple-50 px-3 py-2">
-            <span className="text-xs text-purple-900">Invite to curate together.</span>
+          
+          {/* Invite Card */}
+          <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-100 to-purple-50">
+            <div className="text-sm font-medium mb-2">Invite & Earn a Rolecieco!</div>
+            <div className="text-xs text-gray-600 mb-2">Share friends and unlock exclusive rewards!</div>
             <button
-              className="rounded-[6px] bg-purple-600 p-1.5 md:text-sm text-xs uppercase text-white hover:bg-purple-700"
               onClick={() => {
-                copyToClip("rolecieco");
+                copyToClip("ROLECIECO");
                 toast({
                   title: "Copied!",
-                  description:
-                    "Your referral code has been copied to your clipboard",
+                  description: "Referral code copied to clipboard",
                 });
               }}
+              className="w-full py-2 text-center text-white rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
             >
-             rolecieco
-            </button>
-          </div>
-          <div className="mt-6 flex cursor-default items-center justify-between gap-2 overflow-clip">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <div className="h-10 w-10 shrink-0 rounded-full">
-                <Avatar.Root className="inline-flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full border align-middle">
-                  <Avatar.Image
-                    className="size-full h-full w-full object-cover"
-                    src={
-                      user.picture ||
-                      "https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
-                    }
-                    alt="user img"
-                  />
-                  <Avatar.Fallback
-                    className="flex content-center items-center bg-white text-sm"
-                    delayMs={600}
-                  >
-                    CT
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              </div>
-              <div className="flex flex-col justify-between truncate">
-                <span className="inline-block text-sm font-semibold text-[#344054]">
-                  {user.first_name}
-                </span>
-                <span className="inline-block w-full truncate text-sm text-[#444]">
-                  {user.email}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={signOut}
-              disabled={isConnecting}
-            >
-              <LogOutIcon className="opacity-50" />
+              ROLECIECO
             </button>
           </div>
         </div>
-      ) : (
-        <div className="flex w-full cursor-pointer items-center gap-2 px-8 text-muted-foreground hover:text-foreground">
-          <button
-            className="w-full rounded-[12px] bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 px-4 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity"
-            onClick={() => setIsAuthDialogOpen(true)}
-          >
-            Sign up
-          </button>
-          <AuthDialog
-            isOpen={isAuthDialogOpen}
-            toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
-          />
-        </div>
-      )}
+      </nav>
     </aside>
   );
 }
