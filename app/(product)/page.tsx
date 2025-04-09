@@ -33,9 +33,12 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { GatedDialog } from "@/components/Dialogs/GatedDailog";
+import Image from "next/image";
+import Logo from "@/assets/icons/logo.svg";
+import { AgentDashboard } from "@/components/Dashboard";
 
 const CHART_COLORS = {
   primary: '#EC4899',    // Pink-500
@@ -946,6 +949,10 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDeepResearchEnabled, setIsDeepResearchEnabled] = useState(false);
+  const searchParams = useSearchParams();
+  const showDashboard = searchParams.get('dashboard') === 'true';
 
   useEffect(() => {
     console.log(user)
@@ -1118,6 +1125,10 @@ export default function Page() {
     };
 
     return (
+
+
+
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {agents.map((agent) => (
           <AgentCard
@@ -1290,182 +1301,181 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [activeTab, user]);
 
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to search results or start a new chat
+      router.push(`/chats?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  // If dashboard parameter is present, show the AgentDashboard component
+  if (showDashboard) {
+    return <AgentDashboard />;
+  }
+
+  // Render Perplexity-like home page UI
   return (
-    <section className="mt-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex select-none flex-col gap-1">
-          <h2 className="text-3xl font-semibold leading-[38px] text-black">
-            Agent Dashboard
-          </h2>
-          <span className="leading-[24px] text-[#475467]">
-            Manage and monitor your AI agents
-          </span>
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            className={`flex items-center gap-2 rounded-[8px] px-4 py-2.5 font-semibold ${gradientStyle.button}`}
-            onClick={() => router.push("/agents/new")}
-          >
-            <Plus width={12} height={12} />
-            <span className="block text-nowrap text-sm">
-              Create New Agent
-            </span>
-          </button>
-
-        </div>
+    <div className="flex flex-col items-center justify-between min-h-[calc(100vh-100px)] p-4 bg-white">
+      {/* Main content area */}
+      <div className="w-full max-w-4xl mx-auto flex flex-col items-center py-12">
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
-        </div>
-      ) : error ? (
-        <div className="text-center text-red-500 p-4">
-          {error}
-        </div>
-      ) : dashboardStats ? (
-        <>
-          <GlobalStats stats={dashboardStats} />
-          <div className="my-6 h-[1px] w-full bg-border" />
-          <StatCards stats={dashboardStats} />
-        </>
-      ) : null}
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RecentActivities />
+      {/* Center the search area in the viewport - Perplexity style */}
+      <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center" style={{ minHeight: 'calc(60vh)' }}>
+        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">
+          What do you want to know?
+        </h1>
+        
+        {/* Search form - Perplexity style */}
+        <form onSubmit={handleSearch} className="w-full relative mb-10">
+          <div className="relative w-full max-w-3xl mx-auto">
+            {/* Main input field */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Ask anything..."
+              className="w-full px-4 py-10 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm transition-all bg-white text-gray-800"
+            />
             
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Performance Overview</h3>
-                <LineChart data={performanceData} />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Active Conversations</h3>
-                <ScrollArea className="h-[350px]">
-                  {agents.map(agent => (
-                    <div key={agent._id} className="flex items-center justify-between py-2">
-                      <span>{agent.name}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {agent.activeChats} active chats
-                      </span>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="agents" className="mt-6">
-          {renderAgentsContent()}
-        </TabsContent>
-
-        <TabsContent value="tasks" className="mt-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {Object.entries(tasks).map(([status, taskList]) => (
-                <div key={status}>
-                  <h3 className="text-lg font-semibold mb-4 capitalize">{status} Tasks</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {taskList.map(task => (
-                      <TaskCard key={task.id} task={task} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {Object.keys(tasks).length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No tasks found
-                </div>
-              )}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="logs" className="mt-6">
-          <Card>
-            <CardContent className="p-0">
-              <div className="bg-black text-white p-4 rounded-t-lg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Terminal className="h-4 w-4" />
-                  <span>Agent Logs</span>
-                </div>
-                <select 
-                  className="bg-gray-800 text-white rounded px-3 py-1 text-sm"
-                  value={selectedAgentId}
-                  onChange={(e) => setSelectedAgentId(e.target.value)}
+            {/* Bottom controls bar - white theme */}
+            <div className="absolute bottom-1 left-0 right-0 px-5 flex items-center justify-end">
+              {/* Right side utility buttons */}
+              <div className="flex items-center gap-1">
+                {/* Globe/Language button */}
+                <button 
+                  type="button"
+                  className="p-2 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+                  title="Language"
                 >
-                  <option value="all">All Agents</option>
-                  <option value="1">Customer Support Bot</option>
-                </select>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                </button>
+                
+                {/* Attachment button */}
+                <button 
+                  type="button"
+                  className="p-2 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+                  title="Attach files"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
+                </button>
+                
+                {/* Microphone button */}
+                <button
+                  type="button"
+                  className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  title="Voice input"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                </button>
               </div>
-              <div className="h-[500px] p-4 overflow-auto">
-                {logs.length > 0 ? (
-                  <div className="space-y-2">
-                    {logs
-                      .filter(log => selectedAgentId === "all" || log.agentId === selectedAgentId)
-                      .map((log, index) => (
-                        <div 
-                          key={index} 
-                          className="font-mono text-sm mb-2 opacity-0 animate-fade-in"
-                          style={{ 
-                            animationDelay: `${index * 100}ms`,
-                            animationFillMode: 'forwards'
-                          }}
-                        >
-                          <span className="text-gray-500">
-                            {new Date(log.timestamp).toLocaleTimeString()}
-                          </span>
-                          <span className="text-gray-400 ml-2">[{log.agentName}]</span>
-                          <span className={cn(
-                            "ml-2",
-                            {
-                              'text-green-500': log.status === 'success',
-                              'text-red-500': log.status === 'error',
-                              'text-blue-500': log.status === 'info'
-                            }
-                          )}>
-                            {log.message}
-                          </span>
-                        </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    No logs available
-                  </div>
-                )}
+            </div>
+          </div>
+        </form>
+        
+        {/* Popular Use Cases - Perplexity style - Smaller cards */}
+        <div className="w-full max-w-xl mx-auto">
+          <div className="grid grid-cols-4 gap-3 mb-6">
+            {[
+              { 
+                title: "Customer Support", 
+                icon: <Users className="h-4 w-4 text-blue-600" />,
+                bgColor: "bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200",
+                iconBg: "bg-blue-100/70"
+              },
+              { 
+                title: "Data Analysis", 
+                icon: <BarChart className="h-4 w-4 text-purple-600" />,
+                bgColor: "bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200",
+                iconBg: "bg-purple-100/70"
+              },
+              { 
+                title: "Community", 
+                icon: <MessageSquare className="h-4 w-4 text-pink-600" />,
+                bgColor: "bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200",
+                iconBg: "bg-pink-100/70"
+              },
+              { 
+                title: "Content", 
+                icon: <Terminal className="h-4 w-4 text-teal-600" />,
+                bgColor: "bg-gradient-to-br from-teal-50 to-teal-100 hover:from-teal-100 hover:to-teal-200",
+                iconBg: "bg-teal-100/70"
+              }
+            ].map((item, i) => (
+              <div 
+                key={i} 
+                className={`border border-gray-200 shadow-sm hover:shadow rounded-xl p-3 flex flex-col items-center text-center gap-2 cursor-pointer transition-all ${item.bgColor}`}
+              >
+                <div className={`rounded-full p-2 ${item.iconBg}`}>
+                  {item.icon}
+                </div>
+                <span className="font-medium text-xs">{item.title}</span>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            ))}
+          </div>
+        </div>
+      </div>
       
-      <AuthDialog
-        isOpen={isAuthDialogOpen}
-        toggleIsOpen={() => setIsAuthDialogOpen((prev) => !prev)}
-      />
-       <GatedDialog
-        isOpen={isGatedDialogOpen}
-        toggleIsOpen={() => setIsGatedDialogOpen((prev) => !prev)}
-      />
-    </section>
+      {/* App download banner - Similar to Perplexity */}
+      
+      
+      {/* Dashboard Tabs */}
+      <div className="w-full mt-auto">
+        {/* Footer tabs for dashboard navigation */}
+        <div className="w-full py-6 flex justify-center space-x-6 text-sm text-gray-500 border-t bg-gray-50">
+          <Tabs defaultValue="overview" className="w-auto mx-auto">
+            <TabsList className=" border shadow-sm">
+              <TabsTrigger 
+                value="overview" 
+                className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-800 px-4"
+                onClick={() => router.push("/?dashboard=true&tab=overview")}
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="agents" 
+                className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-800 px-4"
+                onClick={() => router.push("/?dashboard=true&tab=agents")}
+              >
+                Agents
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tasks" 
+                className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-800 px-4"
+                onClick={() => router.push("/?dashboard=true&tab=tasks")}
+              >
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger 
+                value="logs" 
+                className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-800 px-4"
+                onClick={() => router.push("/?dashboard=true&tab=logs")}
+              >
+                Logs
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        
+       
+       
+      </div>
+      <AuthDialog isOpen={isAuthDialogOpen} toggleIsOpen={() => setIsAuthDialogOpen(prev => !prev)} />
+      {/* Auth dialogs - keep existing ones */}
+      {isGatedDialogOpen && <GatedDialog isOpen={isGatedDialogOpen} toggleIsOpen={() => setIsGatedDialogOpen(prev => !prev)} />}
+    </div>
   );
 }
