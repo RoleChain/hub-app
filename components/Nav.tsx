@@ -75,7 +75,7 @@ export default function Nav() {
     <aside className="fixed inset-y-0 left-0 z-10 w-[280px] bg-white p-4 flex flex-col">
       <nav className="flex flex-col h-full">
         {/* Logo */}
-        <Link href="/" className="flex items-center mb-4">
+        <Link href="/" className="flex items-center mb-6">
           <Image
             src={Logo}
             alt="RolechAin"
@@ -91,30 +91,10 @@ export default function Nav() {
           >
             Get Started
           </Link>
-          <Link
-            href="/settings"
-            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-            </svg>
-            Settings
-          </Link>
-          <Link
-            href="/templates"
-            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Templates
-          </Link>
         </div>
 
-        {/* Workforce Section */}
+        {/* Menu Items */}
         <div className="space-y-0.5 mt-2">
-          <div className="px-3 text-xs font-medium text-gray-500">Workforce</div>
           <Link
             href="/agents"
             className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -123,50 +103,38 @@ export default function Nav() {
             Agents
           </Link>
           <Link
-            href="/gpt"
-            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            GPT
-          </Link>
-          <Link
-            href="/role"
-            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <UserCircle className="w-4 h-4 mr-2" />
-            Role
-          </Link>
-          <Link
             href="/tools"
             className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
           >
             <Wrench className="w-4 h-4 mr-2" />
             Tools
           </Link>
-        </div>
-
-        {/* Monitor Section */}
-        <div className="space-y-0.5 mt-2">
-          <div className="px-3 text-xs font-medium text-gray-500">Monitor</div>
           <Link
-            href="/analytics"
-            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
-            <BarChart2 className="w-4 h-4 mr-2" />
-            Analytics
-          </Link>
-          <Link
-            href="/activity"
+            href="/workflow"
             className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
           >
             <Activity className="w-4 h-4 mr-2" />
-            Activity Center
+            Workflow
+          </Link>
+          <Link
+            href="/trends"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <BarChart2 className="w-4 h-4 mr-2" />
+            Trends
+          </Link>
+          <Link
+            href="/research"
+            className="flex items-center w-full px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Research
           </Link>
         </div>
 
-        {/* Stats Section - updated design */}
+        {/* Stats Section */}
         <div className="mt-auto pt-4 border-t border-gray-200">
-          <div className="px-3 text-xs font-medium text-gray-500 mb-2">My Stats</div>
+          {/* <div className="px-3 text-xs font-medium text-gray-500 mb-2">My Stats</div>
           <div className="grid grid-cols-2 gap-2">
             <div className="p-3 bg-white rounded-xl border border-gray-100">
               <div className="text-gray-600 text-sm mb-1">Credits</div>
@@ -182,7 +150,7 @@ export default function Nav() {
                 <span className="text-2xl font-semibold">4200</span>
               </div>
             </div>
-          </div>
+          </div> */}
           
           {/* Invite Card */}
           <div className="mt-3 p-3 rounded-lg bg-gradient-to-br from-purple-100 to-purple-50">
@@ -206,3 +174,4 @@ export default function Nav() {
     </aside>
   );
 }
+

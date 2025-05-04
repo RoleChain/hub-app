@@ -62,7 +62,30 @@ const config: Config = {
         missionCardGradient: "linear-gradient(103deg,var(--tw-gradient-stops))",
       },
       animation: {
+        flash: 'flash 2s ease-in-out infinite',
+        slideUp: 'slideUp 10s linear infinite',
         pop: "pop 0.50s ease-in",
+      },
+      keyframes: {
+        flash: {
+          '0%, 100%': { transform: 'translateX(-100%)' },
+          '50%': { transform: 'translateX(100%)' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(0)' },
+          '25%': { transform: 'translateY(-25%)' },
+          '50%': { transform: 'translateY(-50%)' },
+          '75%': { transform: 'translateY(-75%)' },
+          '100%': { transform: 'translateY(-100%)' },
+        },
+      },
+      utilities: {
+        '.animation-delay-300': {
+          'animation-delay': '3s',
+        },
+        '.animation-delay-600': {
+          'animation-delay': '6s',
+        },
       },
     },
   },

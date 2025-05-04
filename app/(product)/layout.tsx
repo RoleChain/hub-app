@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 import { Toaster } from "@/components/ui/toaster";
 import { ConversationProvider } from "@/contexts/conversation.context";
 import { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
+import { Menu, ChevronLeft } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopNavHidden, setIsDesktopNavHidden] = useState(true);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -30,11 +31,25 @@ export default function DashboardLayout({
       <ConversationProvider>
         <div className="flex min-h-screen w-full flex-col">
           {/* Mobile Menu Button */}
-          <button 
+          {/* <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg md:hidden"
           >
             <Menu className="h-6 w-6" />
+          </button> */}
+
+          {/* Desktop Nav Toggle Button */}
+          <button 
+            onClick={() => setIsDesktopNavHidden(!isDesktopNavHidden)}
+            className={cn(
+              "fixed top-3 z-50 p-1 bg-white rounded-lg hidden md:block transition-all duration-300",
+              isDesktopNavHidden ? "left-4" : "left-[260px]"
+            )}
+          >
+            <ChevronLeft className={cn(
+              "h-6 w-6 transition-transform duration-300",
+              isDesktopNavHidden ? "rotate-180" : ""
+            )} />
           </button>
 
           {/* Mobile Menu Overlay */}
@@ -47,9 +62,21 @@ export default function DashboardLayout({
 
           {/* Navigation */}
           <div className={cn(
-            "fixed inset-y-0 left-0 z-40 w-[280px] transform transition-transform duration-300 ease-in-out bg-white md:relative md:transform-none md:w-[312px]",
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-            "h-full overflow-y-auto"
+            "fixed inset-y-0 left-0 z-40 w-[280px] transform transition-transform duration-300 ease-in-out bg-white h-full overflow-y-auto",
+            // Mobile classes (default hidden, shown when menu open)
+            "md:hidden",
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+            // Desktop classes (in a separate div)
+          )}>
+            <Nav />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className={cn(
+            "",
+            // Desktop only
+            "",
+            isDesktopNavHidden ? "hidden" : "block",
           )}>
             <Nav />
           </div>
@@ -58,7 +85,8 @@ export default function DashboardLayout({
           <div className={cn(
             "relative isolate flex flex-1 flex-col overflow-x-clip bg-[#FAFAFA]",
             "w-full transition-all duration-300",
-            "px-4 pt-16 md:pt-0 md:pl-[312px]"
+            "md:pt-0",
+            isDesktopNavHidden ? "md:pl-0" : "md:pl-[312px]"
           )}>
             <div className="fixed inset-0 translate-x-[20%] overflow-clip pointer-events-none">
               {/* <Image
@@ -72,7 +100,7 @@ export default function DashboardLayout({
                 )}
               /> */}
             </div>
-            <main className="relative isolate z-[0] grid flex-1 gap-2 md:gap-4 lg:px-9 lg:pt-10">
+            <main className="">
               {children}
             </main>
             <Toaster />
