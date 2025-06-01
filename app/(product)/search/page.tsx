@@ -123,6 +123,7 @@ const SearchResults = () => {
   const [messages, setMessages] = useState<SearchMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [sources, setSources] = useState<Source[]>([]); // Add state for sources
+  const [threadId] = useState(() => `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   // Add a ref to track if we've already made the initial request
   const initialRequestMade = React.useRef(false);
@@ -164,8 +165,13 @@ const SearchResults = () => {
       const controller = new AbortController();
       const { signal } = controller;
 
-      const apiUrl = `https://scrapper-api-service-558909567626.us-central1.run.app/summarize?query=${encodeURIComponent(searchQuery)}&engine=google`;
-      const response = await fetch(apiUrl, { signal });
+      const apiUrl = `http://localhost:8000/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}`;
+      const response = await fetch(apiUrl, { 
+        signal,
+        headers: {
+          'X-API-Key': 'sk-rolechain-prod-43f5a28dbc1c4a0e8f7c9b2a'
+        }
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
