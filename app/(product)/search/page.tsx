@@ -165,7 +165,7 @@ const SearchResults = () => {
       const controller = new AbortController();
       const { signal } = controller;
 
-      const apiUrl = `http://localhost:8000/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}`;
+      const apiUrl = `https://scrapper-api-service-558909567626.us-central1.run.app/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}`;
       const response = await fetch(apiUrl, { 
         signal,
         headers: {
