@@ -3,7 +3,13 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+  body {
+    font-family: 'Inter var', sans-serif;
+  }
 }
 
 @layer base {
@@ -183,7 +189,7 @@ body {
   }
 }
 
-@keyframes fade-in {
+@keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -194,8 +200,8 @@ body {
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .no-highlight {
