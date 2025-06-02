@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -193,12 +194,39 @@ const getMarkdownComponents = (messageSpecificSources?: Source[]) => ({
   
   // Define the li component with proper types
   li: (props: React.HTMLProps<HTMLLIElement>) => {
+    // Tailwind Prose typically handles li styling, but we ensure a common pitfall (margin on p inside li) is okay.
+    // If children are paragraphs, they might get extra margins from Prose.
+    // However, simple text content with inline code and citations should flow okay.
     return <li className="my-1">{props.children}</li>;
   },
   
   // Define the ol component with proper types
   ol: (props: React.HTMLProps<HTMLOListElement>) => {
     return <ol className="list-decimal list-inside space-y-2 my-4">{props.children}</ol>;
+  },
+
+  // Custom renderer for inline code to ensure it plays well with adjacent citations
+  code: ({node, inline, className, children, ...props}: any) => {
+    const match = /language-(\w+)/.exec(className || '')
+    if (!inline && match) {
+      // This is a block code, let Prose handle it or add custom block styling
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    }    
+    // For inline code, apply specific styling that doesn't interfere with adjacent elements.
+    // Tailwind Prose applies `bg-gray-100`, `px-1`, `py-0.5`, `rounded-sm`, `font-mono`, `text-sm` by default.
+    // We can keep this or slightly adjust. The key is to ensure it's `inline` display.
+    return (
+      <code 
+        className="bg-gray-100 text-gray-700 px-1 py-0.5 rounded-sm font-mono text-xs break-words"
+        {...props}
+      >
+        {children}
+      </code>
+    );
   },
   
   a: ({ node, ...props }: any) => {
@@ -262,7 +290,10 @@ const getMarkdownComponents = (messageSpecificSources?: Source[]) => ({
     if (sourceIndexMatch) {
       const sourceIndex = parseInt(sourceIndexMatch[1]);
       const source = localSources[sourceIndex - 1];
-      if (!source) return <>{`[${sourceIndex}]`}</>;
+      if (!source) {
+        // If source is not found, render a non-interactive, slightly distinct indicator
+        return <span className="text-red-500 text-xs align-super">[{sourceIndex}]?</span>;
+      }
       return (
         <CitationWrapper 
           source={source} 
@@ -843,7 +874,11 @@ const SearchResults = () => {
                                           prose-table:table-fixed prose-table:w-full prose-table:my-4 
                                           prose-thead:bg-gray-100 prose-th:p-2 prose-th:text-left prose-th:font-semibold 
                                           prose-td:p-2 prose-td:border-b prose-td:border-gray-200 prose-tr:border-b prose-tr:border-gray-200">
-                              <ReactMarkdown components={getMarkdownComponents(msg.sources)} rehypePlugins={[rehypeRaw]}>
+                              <ReactMarkdown 
+                                components={getMarkdownComponents(msg.sources)} 
+                                rehypePlugins={[rehypeRaw]} 
+                                remarkPlugins={[remarkGfm]}
+                              >
                                 {preprocessMarkdown(msg.content)}
                               </ReactMarkdown>
                             </div>
