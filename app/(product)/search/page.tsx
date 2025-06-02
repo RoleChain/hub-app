@@ -491,7 +491,7 @@ const SearchResults = () => {
       const { signal } = controller;
 
       // Include session ID in the API URL and headers
-      const apiUrl = `http://localhost:8000/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}&session_id=${sessionId}`;
+      const apiUrl = `https://scrapper-api-service-558909567626.us-central1.run.app/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}&session_id=${sessionId}`;
       
       console.log('🔍 Making API call with:', {
         sessionId,
