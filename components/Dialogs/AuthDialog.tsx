@@ -14,12 +14,14 @@ import logo from "@/assets/icons/logo.svg";
 export function AuthDialog({
   isOpen,
   toggleIsOpen,
+  isDailyLimitReached = false,
 }: {
   isOpen: boolean;
   toggleIsOpen: () => void;
+  isDailyLimitReached?: boolean;
 }) {
   const { user } = useAuth();
-  if (user) {
+  if (user && !isDailyLimitReached) {
     return;
   }
   return (
@@ -41,7 +43,9 @@ export function AuthDialog({
       >
         <DialogHeader className="flex flex-col items-center justify-center text-center">
           <DialogTitle className="text-base font-normal">
-            The Role Play Agent Infrastructure for Web3
+            {isDailyLimitReached 
+              ? "Daily Limit Reached" 
+              : "The Role Play Agent Infrastructure for Web3"}
           </DialogTitle>
           <DialogDescription className="text-3xl font-bold text-accent">
             <Image
@@ -58,7 +62,18 @@ export function AuthDialog({
           className="mx-auto object-cover"
         />
 
-        <AuthDialogContent />
+        {isDailyLimitReached ? (
+          <div className="space-y-4 text-center">
+            <p className="text-lg font-medium">
+              You have consumed your daily limit.
+            </p>
+            <p className="text-muted-foreground">
+              Please try again tomorrow or upgrade your plan for unlimited searches.
+            </p>
+          </div>
+        ) : (
+          <AuthDialogContent />
+        )}
       </DialogContent>
     </Dialog>
   );

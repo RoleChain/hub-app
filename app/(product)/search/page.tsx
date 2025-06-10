@@ -469,6 +469,7 @@ const SearchResults = () => {
   const [apiCallCount, setApiCallCount] = useState(0);
   const [isApiCallCountLoaded, setIsApiCallCountLoaded] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isDailyLimitReached, setIsDailyLimitReached] = useState(false);
   const [pendingQuery, setPendingQuery] = useState<string | null>(null); // Store query to execute after login
   const MAX_API_CALLS_BEFORE_LOGIN = 1; // Show login after 1 free answer, on 2nd attempt
   
@@ -734,6 +735,30 @@ const SearchResults = () => {
 
     } catch (error) {
       console.error('Error processing search:', error);
+      
+      // Check if this is a rate limit error and user is not authenticated
+      if (error instanceof Error && error.message.includes('429') && 
+          (error.message.includes('Rate limit exceeded for unauthenticated users') || 
+           error.message.includes('rate limit') || 
+           error.message.includes('Rate limit'))) {
+        if (!user) {
+          console.log('🚫 Rate limit error for unauthenticated user - showing auth dialog');
+          setPendingQuery(searchQuery); // Store the query to execute after login
+          setIsAuthDialogOpen(true);
+          // Remove thinking message and don't show error message
+          setMessages(prev => prev.filter(msg => msg.messageId !== assistantMessageId));
+          return; // Don't show error message, just show auth popup
+        } else {
+          // User is authenticated but hit rate limit - show daily limit reached popup
+          console.log('🚫 Rate limit error for authenticated user - showing daily limit popup');
+          setIsDailyLimitReached(true);
+          setIsAuthDialogOpen(true);
+          // Remove thinking message and don't show error message
+          setMessages(prev => prev.filter(msg => msg.messageId !== assistantMessageId));
+          return; // Don't show error message, just show limit popup
+        }
+      }
+      
       setMessages(prevMessages => {
          // Remove thinking/partial assistant message using the specific ID
         const filteredMessages = prevMessages.filter(msg => msg.messageId !== assistantMessageId);
@@ -1086,9 +1111,11 @@ const SearchResults = () => {
 
       {/* Auth Dialog - Show after API call limit reached */}
       <AuthDialog
-        isOpen={isAuthDialogOpen && !user} // Close when user is authenticated
+        isOpen={isAuthDialogOpen && (!user || isDailyLimitReached)} // Show for unauthenticated users or daily limit reached
+        isDailyLimitReached={isDailyLimitReached}
         toggleIsOpen={() => {
           setIsAuthDialogOpen(!isAuthDialogOpen);
+          setIsDailyLimitReached(false); // Reset daily limit state when closing
           // Clear pending query if user manually closes dialog
           if (isAuthDialogOpen) {
             setPendingQuery(null);
