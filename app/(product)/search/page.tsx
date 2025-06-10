@@ -21,6 +21,9 @@ import remarkGfm from 'remark-gfm';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+// Import the existing AuthDialog
+import { AuthDialog } from "@/components/Dialogs";
+import useAuth from "@/hooks/useAuth";
 
 // --- Swiper Imports ---
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -459,6 +462,16 @@ const SearchResults = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [_sources, setGlobalSources] = useState<Source[]>([]); // Renamed to avoid confusion with msg.sources
   
+  // Auth hook and user state
+  const { user } = useAuth();
+  
+  // API call counter and auth dialog state
+  const [apiCallCount, setApiCallCount] = useState(0);
+  const [isApiCallCountLoaded, setIsApiCallCountLoaded] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [pendingQuery, setPendingQuery] = useState<string | null>(null); // Store query to execute after login
+  const MAX_API_CALLS_BEFORE_LOGIN = 1; // Show login after 1 free answer, on 2nd attempt
+  
   // Create a session ID that persists across the entire user session
   const [sessionId] = useState(() => getOrCreateSessionId());
 
@@ -472,6 +485,9 @@ const SearchResults = () => {
   const clearSession = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('research_ai_session_id');
+      sessionStorage.removeItem('api_call_count'); // Also clear API call count
+      setPendingQuery(null); // Clear any pending query
+      setIsAuthDialogOpen(false); // Close auth dialog
       console.log('🗑️ Session cleared');
       // Optionally reload the page to start fresh
       window.location.reload();
@@ -499,6 +515,34 @@ const SearchResults = () => {
     });
   }, []);
 
+  // Persist API call count in sessionStorage
+  useEffect(() => {
+    const savedCallCount = sessionStorage.getItem('api_call_count');
+    console.log('📥 Loading API call count from sessionStorage:', savedCallCount);
+    if (savedCallCount) {
+      const parsedCount = parseInt(savedCallCount, 10);
+      console.log('📥 Setting API call count to:', parsedCount);
+      setApiCallCount(parsedCount);
+    }
+    setIsApiCallCountLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isApiCallCountLoaded) return; // Don't save on initial render
+    console.log('💾 Saving API call count to sessionStorage:', apiCallCount);
+    sessionStorage.setItem('api_call_count', apiCallCount.toString());
+  }, [apiCallCount, isApiCallCountLoaded]);
+
+  // Auto-execute pending query after successful login
+  useEffect(() => {
+    if (user && pendingQuery && !isProcessing) {
+      console.log('🔓 User logged in, executing pending query:', pendingQuery);
+      handleSearch(pendingQuery);
+      setPendingQuery(null); // Clear the pending query
+      setIsAuthDialogOpen(false); // Close the auth dialog
+    }
+  }, [user, pendingQuery, isProcessing]);
+
   // Commented out the useEffect that checks for user/isLoading
   // useEffect(() => {
   //   if (!isLoading && !user) {
@@ -507,6 +551,26 @@ const SearchResults = () => {
   // }, [user, isLoading, router]);
 
   const handleSearch = async (searchQuery: string) => {
+    console.log('🔍 handleSearch called with:', { searchQuery, apiCallCount, MAX_API_CALLS_BEFORE_LOGIN, user: !!user });
+    
+    // Calculate what the new count would be
+    const newApiCallCount = apiCallCount + 1;
+    console.log('🔢 New API call count would be:', newApiCallCount);
+    
+    // Check if this call would exceed the limit and user is not authenticated
+    if (newApiCallCount > MAX_API_CALLS_BEFORE_LOGIN && !user) {
+      console.log('🚫 Blocking API call - showing auth dialog');
+      setPendingQuery(searchQuery); // Store the query to execute after login
+      setIsAuthDialogOpen(true);
+      // Don't proceed with API call - return early
+      return;
+    }
+
+    console.log('✅ Proceeding with API call');
+    // Only increment counter if we're actually making the call
+    setApiCallCount(newApiCallCount);
+    console.log('📊 Incrementing API call count to:', newApiCallCount);
+
     const userMessageId = Date.now().toString() + "-user";
     const assistantMessageId = Date.now().toString() + "-assistant"; // Pre-generate ID for the assistant message
 
@@ -521,22 +585,48 @@ const SearchResults = () => {
       const controller = new AbortController();
       const { signal } = controller;
 
+
       // Include session ID in the API URL and headers
       const apiUrl = `https://scrapper-api-service-558909567626.us-central1.run.app/summarize?query=${encodeURIComponent(searchQuery)}&engine=google&thread_id=${threadId}&session_id=${sessionId}`;
+      
+      // Prepare headers - include auth token if user is authenticated
+      const headers: Record<string, string> = {
+        'X-API-Key': 'sk-rolechain-prod-43f5a28dbc1c4a0e8f7c9b2a',
+        'X-Session-ID': sessionId,
+        'X-Thread-ID': threadId
+      };
+      
+      // Add Authorization header if user is authenticated
+      console.log('🔍 User object:', user);
+      console.log('🔍 User exists?', !!user);
+      console.log('🔍 Window type:', typeof window);
+      
+      // Check for token directly from localStorage (more reliable than user object)
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        console.log('🔍 Token from localStorage:', token ? 'EXISTS' : 'NOT FOUND');
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          console.log('🔐 Including auth token in API call');
+        } else {
+          console.log('🔍 No token found in localStorage');
+        }
+      } else {
+        console.log('🔍 Window not available (SSR)');
+      }
+      
+      console.log('🔍 Final headers being sent:', headers);
       
       console.log('🔍 Making API call with:', {
         sessionId,
         threadId,
-        query: searchQuery
+        query: searchQuery,
+        callCount: apiCallCount
       });
 
       const response = await fetch(apiUrl, { 
         signal,
-        headers: {
-          'X-API-Key': 'sk-rolechain-prod-43f5a28dbc1c4a0e8f7c9b2a',
-          'X-Session-ID': sessionId,
-          'X-Thread-ID': threadId
-        }
+        headers
       });
 
       if (!response.ok) {
@@ -785,16 +875,6 @@ const SearchResults = () => {
           </div>
           <div className="flex items-center space-x-2">
             {/* Session info for debugging - remove in production */}
-            <div className="text-xs text-gray-400 mr-2 hidden sm:block">
-              Session: {sessionId.split('-').pop()}
-            </div>
-            <button 
-              onClick={clearSession}
-              className="p-2 rounded-md text-gray-500 hover:bg-gray-100 text-xs hidden sm:block"
-              title="Clear Session"
-            >
-              🗑️
-            </button>
             <button className="p-2 rounded-md text-gray-500 hover:bg-gray-100">
               <MoreHorizontal size={20} />
             </button>
@@ -1003,6 +1083,18 @@ const SearchResults = () => {
           </div>
         </div>
       </footer>
+
+      {/* Auth Dialog - Show after API call limit reached */}
+      <AuthDialog
+        isOpen={isAuthDialogOpen && !user} // Close when user is authenticated
+        toggleIsOpen={() => {
+          setIsAuthDialogOpen(!isAuthDialogOpen);
+          // Clear pending query if user manually closes dialog
+          if (isAuthDialogOpen) {
+            setPendingQuery(null);
+          }
+        }}
+      />
     </div>
   );
 };

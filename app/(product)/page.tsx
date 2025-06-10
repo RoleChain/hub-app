@@ -91,7 +91,7 @@ export default function Page() {
             What do you want to know?
           </h1>
 
-          <div className="relative w-full bg-white rounded-2xl shadow-lg border border-[#E5E7EB] focus-within:border-[#E056B8] focus-within:ring-1 focus-within:ring-[#E056B8] mb-8 transition-all duration-300 hover:shadow-xl animate-fadeIn animation-delay-300">
+          <div className="relative w-full bg-white rounded-2xl shadow-lg border border-[#E5E7EB] focus-within:border-[#E056B8] focus-within:ring-1 focus-within:ring-[#E056B8] mb-8 transition-all duration-300 hover:shadow-xl animate-fadeIn animation-delay-300 z-10">
             <div className="flex flex-col p-4">
               <div className="flex items-center mb-6">
             <Input
@@ -105,7 +105,7 @@ export default function Page() {
               </div>
               
               {suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 max-h-60 overflow-y-auto z-50">
+                <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 max-h-60 overflow-y-auto z-[9999]">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={index}
